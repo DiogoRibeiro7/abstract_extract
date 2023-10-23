@@ -1,6 +1,6 @@
 import requests
 
-import requests
+from requests.exceptions import HTTPError
 
 def fetch_from_scopus(query, api_key, max_results=25):
     """
@@ -80,12 +80,52 @@ def process_scopus_response(articles):
 # Process the fetched articles
 processed_data = process_scopus_response(articles)
 
+import requests
+
+def get_abstract_from_doi(doi):
+    # Define the CrossRef API endpoint
+    url = f"https://api.crossref.org/works/{doi}"
+    
+    try:
+        # Make the API request
+        response = requests.get(url)
+        
+        # Raise an HTTPError if the HTTP request returned an unsuccessful status code
+        response.raise_for_status()
+
+    except HTTPError as http_err:
+        # Handle HTTPError
+        print(f"HTTP error occurred: {http_err}")
+        return "HTTP Error"
+
+    except Exception as err:
+        # Handle other exceptions
+        print(f"An error occurred: {err}")
+        return "Error"
+        
+    data = response.json()
+    
+    # Extract the abstract, if available
+    abstract = data['message'].get('abstract', 'Abstract not available.')
+    
+    return abstract
+
+# Example
+for article in processed_data:
+    first_article = article
+    print(f"Doi: {first_article['doi']}")
+    doi = first_article['doi']
+    if doi:
+        print(get_abstract_from_doi(doi))
+        first_article['abstract'] = get_abstract_from_doi(doi)
+
+
 # Example: Print the details of the first article
-for article in processed_data
-first_article = processed_data[0]
-print(f"Title: {first_article['title']}")
-print(f"Abstract: {first_article['abstract']}")
-print(f"Publication Date: {first_article['publication_date']}")
-print(f"Authors: {', '.join(first_article['authors'])}")
-print(f"Doi: {first_article['doi']}")
+for article in processed_data:
+    first_article = article
+    print(f"Title: {first_article['title']}")
+    print(f"Abstract: {first_article['abstract']}")
+    print(f"Publication Date: {first_article['publication_date']}")
+    print(f"Authors: {', '.join(first_article['authors'])}")
+    print(f"Doi: {first_article['doi']}")
 

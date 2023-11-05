@@ -81,7 +81,7 @@ query = "Aldina Correia"
 # Optionally, specify a date range and author
 # start_date = "2010-01-01"
 # end_date = "2023-01-01"
-# author = "Aldina Correia"
+author = "Aldina Correia"
 
 # Call the function
 result = fetch_all_from_scopus(query, api_key, author=author)
@@ -126,7 +126,7 @@ def process_scopus_response(articles):
 
 
 # Process the fetched articles
-processed_data = process_scopus_response(articles)
+processed_data = process_scopus_response(result)
 
 
 def get_abstract_from_doi(doi):

@@ -14,9 +14,11 @@ from abstract_extract.scopus import (
 )
 
 
-def _session_with_payloads(*payloads: object) -> MagicMock:
+def _session_with_payloads(
+    *payloads: object,
+) -> tuple[MagicMock, list[MagicMock]]:
     session = MagicMock(spec=requests.Session)
-    responses = []
+    responses: list[MagicMock] = []
 
     for payload in payloads:
         response = MagicMock()
@@ -24,12 +26,12 @@ def _session_with_payloads(*payloads: object) -> MagicMock:
         responses.append(response)
 
     session.get.side_effect = responses
-    return session
+    return session, responses
 
 
 def test_fetch_from_scopus_builds_expected_request() -> None:
     payload = {"search-results": {"entry": []}}
-    session = _session_with_payloads(payload)
+    session, responses = _session_with_payloads(payload)
 
     result = fetch_from_scopus(
         "  changepoint detection  ",
@@ -49,7 +51,7 @@ def test_fetch_from_scopus_builds_expected_request() -> None:
         params={"query": "changepoint detection", "count": 10},
         timeout=5.0,
     )
-    session.get.return_value.raise_for_status.assert_called_once()
+    responses[0].raise_for_status.assert_called_once()
 
 
 @pytest.mark.parametrize("max_results", [0, MAX_PAGE_SIZE + 1])
@@ -79,7 +81,7 @@ def test_fetch_all_from_scopus_follows_cursor_pagination() -> None:
     first_entry = {"dc:title": "First"}
     second_entry = {"dc:title": "Second"}
 
-    session = _session_with_payloads(
+    session, _ = _session_with_payloads(
         {
             "search-results": {
                 "entry": [first_entry],
@@ -140,7 +142,7 @@ def test_fetch_all_requires_complete_date_range(
 
 
 def test_fetch_all_rejects_missing_search_results() -> None:
-    session = _session_with_payloads({})
+    session, _ = _session_with_payloads({})
 
     with pytest.raises(ValueError, match="search-results"):
         fetch_all_from_scopus("query", "key", session=session)

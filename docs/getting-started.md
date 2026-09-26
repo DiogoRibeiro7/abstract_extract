@@ -3,12 +3,19 @@
 ## Requirements
 
 - Python 3.12, 3.13, or 3.14
-- Poetry
 - a Scopus API key for Scopus requests
 
 Crossref lookups do not require a Scopus key.
 
+## Install from PyPI
+
+```bash
+pip install abstract-extract
+```
+
 ## Install from source
+
+For development work, clone the repository and install the Poetry environment:
 
 ```bash
 git clone https://github.com/DiogoRibeiro7/abstract_extract.git
@@ -16,7 +23,7 @@ cd abstract_extract
 poetry install
 ```
 
-Enter the Poetry environment or prefix commands with `poetry run`.
+Enter the Poetry environment or prefix development commands with `poetry run`.
 
 ## Configure Scopus credentials
 

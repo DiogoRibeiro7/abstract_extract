@@ -53,4 +53,10 @@ The manual workflow checks out the specified tag, validates that its package ver
 
 ## Current release
 
-Version **0.1.0** was released from the repository's first professionalized package baseline.
+Version **0.1.0** was released from the repository's first professionalized package baseline and is available on [PyPI](https://pypi.org/project/abstract-extract/0.1.0/).
+
+Install it with:
+
+```bash
+pip install abstract-extract==0.1.0
+```

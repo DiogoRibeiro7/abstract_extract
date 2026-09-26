@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "abstract-extract"
+version = "0.1.0"
+description = "Typed Python utilities for retrieving and normalizing scholarly abstracts from Scopus and Crossref."
+authors = ["Diogo Ribeiro"]
+license = "MIT"
+packages = [{ include = "abstract_extract", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = ">=2.32,<3.0"
+
+[tool.poetry.group.dev.dependencies]
+mypy = ">=1.18,<2.0"
+pytest = ">=8.0,<10.0"
+pytest-cov = ">=6.0,<8.0"
+ruff = ">=0.13,<1.0"
+types-requests = ">=2.32,<3.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["abstract_extract"]
+mypy_path = "src"

@@ -230,6 +230,10 @@ Credentials must be supplied at runtime and must not be committed to the reposit
 
 If a credential is accidentally exposed in Git history, removing it from the current source tree is not sufficient. Revoke or rotate the credential at its provider.
 
+## Citation
+
+If you use this software in research or published work, use the repository citation metadata in [CITATION.cff](CITATION.cff). GitHub also exposes this through the repository's **Cite this repository** action.
+
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE).

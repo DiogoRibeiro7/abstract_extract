@@ -6,6 +6,7 @@ from collections.abc import Iterable, Mapping
 from typing import Any
 
 import requests
+from dataexcept import DataLoadingError, wrapping
 
 from abstract_extract.models import Article
 
@@ -35,18 +36,20 @@ def _request_json(
     timeout: float,
 ) -> dict[str, Any]:
     """Execute one Scopus search request and validate its JSON shape."""
-    response = session.get(
-        SCOPUS_SEARCH_URL,
-        headers={
-            "Accept": "application/json",
-            "X-ELS-APIKey": api_key,
-        },
-        params=dict(params),
-        timeout=timeout,
-    )
-    response.raise_for_status()
-
-    payload = response.json()
+    with wrapping(
+        requests.RequestException, DataLoadingError, source=SCOPUS_SEARCH_URL
+    ):
+        response = session.get(
+            SCOPUS_SEARCH_URL,
+            headers={
+                "Accept": "application/json",
+                "X-ELS-APIKey": api_key,
+            },
+            params=dict(params),
+            timeout=timeout,
+        )
+        response.raise_for_status()
+        payload = response.json()
     if not isinstance(payload, dict):
         raise ValueError("Scopus returned a non-object JSON response")
     return payload

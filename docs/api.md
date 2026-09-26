@@ -85,4 +85,9 @@ get_abstract_from_doi(
 
 Retrieves the Crossref abstract field for a DOI.
 
-Returns `None` when Crossref provides no abstract. HTTP failures and malformed response shapes are propagated rather than converted into sentinel strings.
+Returns `None` when Crossref provides no abstract. HTTP and JSON decoding failures
+raise `dataexcept.DataLoadingError`; malformed response shapes raise `ValueError`.
+
+The Scopus fetch functions also raise `DataLoadingError` for request and JSON
+decoding failures. The exception exposes the endpoint as `source` and retains the
+underlying `requests` exception as `original` and `__cause__`.

@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 import requests
+from dataexcept import DataLoadingError
 
 from abstract_extract.models import Article
 from abstract_extract.scopus import (
@@ -52,6 +53,20 @@ def test_fetch_from_scopus_builds_expected_request() -> None:
         timeout=5.0,
     )
     responses[0].raise_for_status.assert_called_once()
+
+
+def test_scopus_http_error_keeps_endpoint_and_cause() -> None:
+    session, responses = _session_with_payloads({})
+    rejected = requests.HTTPError("429 Too Many Requests")
+    responses[0].raise_for_status.side_effect = rejected
+
+    with pytest.raises(DataLoadingError) as error:
+        fetch_from_scopus("topic", "secret-key", session=session)
+
+    assert error.value.source == SCOPUS_SEARCH_URL
+    assert error.value.original is rejected
+    assert error.value.__cause__ is rejected
+    assert "secret-key" not in str(error.value)
 
 
 @pytest.mark.parametrize("max_results", [0, MAX_PAGE_SIZE + 1])
@@ -119,6 +134,22 @@ def test_fetch_all_from_scopus_follows_cursor_pagination() -> None:
 
     second_call = session.get.call_args_list[1]
     assert second_call.kwargs["params"]["cursor"] == "cursor-2"
+
+
+def test_scopus_pagination_failure_does_not_return_partial_entries() -> None:
+    session, responses = _session_with_payloads(
+        {"search-results": {"entry": [{"dc:title": "First"}], "cursor": {"@next": "2"}}}
+    )
+    unavailable = requests.ConnectionError("Scopus unavailable")
+    session.get.side_effect = [responses[0], unavailable]
+
+    with pytest.raises(DataLoadingError) as error:
+        fetch_all_from_scopus("topic", "secret-key", session=session)
+
+    assert session.get.call_count == 2
+    assert error.value.source == SCOPUS_SEARCH_URL
+    assert error.value.original is unavailable
+    assert error.value.__cause__ is unavailable
 
 
 @pytest.mark.parametrize(

@@ -6,6 +6,7 @@ from collections.abc import Mapping
 from urllib.parse import quote
 
 import requests
+from dataexcept import DataLoadingError, wrapping
 
 CROSSREF_WORKS_URL = "https://api.crossref.org/works"
 DEFAULT_TIMEOUT_SECONDS = 30.0
@@ -29,16 +30,17 @@ def get_abstract_from_doi(
 
     owns_session = session is None
     client = session or requests.Session()
+    url = f"{CROSSREF_WORKS_URL}/{quote(normalized_doi, safe='')}"
 
     try:
-        response = client.get(
-            f"{CROSSREF_WORKS_URL}/{quote(normalized_doi, safe='')}",
-            headers={"Accept": "application/json"},
-            timeout=timeout,
-        )
-        response.raise_for_status()
-
-        payload = response.json()
+        with wrapping(requests.RequestException, DataLoadingError, source=url):
+            response = client.get(
+                url,
+                headers={"Accept": "application/json"},
+                timeout=timeout,
+            )
+            response.raise_for_status()
+            payload = response.json()
         if not isinstance(payload, Mapping):
             raise ValueError("Crossref returned a non-object JSON response")
 

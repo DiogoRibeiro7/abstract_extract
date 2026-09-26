@@ -63,7 +63,24 @@ def fetch_from_scopus(
     session: requests.Session | None = None,
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
 ) -> dict[str, Any]:
-    """Fetch one page of Scopus search results."""
+    """Fetch one page of Scopus search results.
+
+    Args:
+        query: Scopus search expression. Leading and trailing whitespace is removed.
+        api_key: Elsevier/Scopus API key.
+        max_results: Number of results requested for the page. Must be between 1 and 25.
+        session: Optional HTTP session for connection reuse or deterministic testing.
+        timeout: Request timeout in seconds. Must be positive.
+
+    Returns:
+        The raw Scopus JSON response as a dictionary.
+
+    Raises:
+        ValueError: If required values are empty, the page size or timeout is invalid,
+            or Scopus returns a non-object JSON response.
+        DataLoadingError: If the HTTP request, status validation, or JSON decoding
+            fails.
+    """
     query = _require_non_empty(query, name="query")
     api_key = _require_non_empty(api_key, name="api_key")
 
@@ -96,7 +113,26 @@ def fetch_all_from_scopus(
     session: requests.Session | None = None,
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
 ) -> list[dict[str, Any]]:
-    """Fetch all Scopus entries reachable through cursor pagination."""
+    """Fetch all Scopus entries reachable through cursor pagination.
+
+    Args:
+        query: Scopus search expression.
+        api_key: Elsevier/Scopus API key.
+        start_date: Optional lower date bound. Must be paired with `end_date`.
+        end_date: Optional upper date bound. Must be paired with `start_date`.
+        author: Optional author filter appended to the Scopus query.
+        session: Optional HTTP session for connection reuse or deterministic testing.
+        timeout: Request timeout in seconds. Must be positive.
+
+    Returns:
+        Raw Scopus entry dictionaries collected across all cursor pages.
+
+    Raises:
+        ValueError: If required values are empty, only one date bound is provided,
+            the timeout is invalid, or a Scopus response has an unexpected shape.
+        DataLoadingError: If a request, status validation, or JSON decoding operation
+            fails on any page.
+    """
     query = _require_non_empty(query, name="query")
     api_key = _require_non_empty(api_key, name="api_key")
 
@@ -155,7 +191,18 @@ def fetch_all_from_scopus(
 def process_scopus_entries(
     entries: Iterable[Mapping[str, Any]],
 ) -> list[Article]:
-    """Normalize raw Scopus entries into typed Article objects."""
+    """Normalize raw Scopus entries into typed article objects.
+
+    Args:
+        entries: Iterable of raw Scopus entry mappings.
+
+    Returns:
+        One immutable :class:`Article` for each input entry.
+
+    Notes:
+        Missing optional metadata is represented by `None`. Invalid author objects are
+        ignored rather than failing normalization.
+    """
     articles: list[Article] = []
 
     for entry in entries:
@@ -185,7 +232,17 @@ def process_scopus_entries(
 
 
 def process_scopus_response(payload: Mapping[str, Any]) -> list[Article]:
-    """Normalize a single raw Scopus search response."""
+    """Normalize a complete single-page Scopus search response.
+
+    Args:
+        payload: Raw Scopus response containing `search-results.entry`.
+
+    Returns:
+        Normalized article records from the response.
+
+    Raises:
+        ValueError: If `search-results` is missing or `entry` is not a list.
+    """
     search_results = payload.get("search-results")
     if not isinstance(search_results, Mapping):
         raise ValueError("Scopus response is missing 'search-results'")

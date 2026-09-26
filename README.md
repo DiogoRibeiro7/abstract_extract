@@ -184,7 +184,9 @@ from abstract_extract import (
 )
 ```
 
-HTTP and response-shape errors are intentionally propagated to callers rather than converted into sentinel values. This keeps failure handling explicit.
+HTTP and JSON decoding failures raise `dataexcept.DataLoadingError`, which records
+the requested endpoint in `source` and the underlying exception in `original`.
+Invalid inputs and response shapes continue to raise `ValueError`.
 
 ## Development
 

@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 import requests
+from dataexcept import DataLoadingError
 
 from abstract_extract.crossref import CROSSREF_WORKS_URL, get_abstract_from_doi
 
@@ -56,3 +57,32 @@ def test_get_abstract_from_doi_rejects_missing_message() -> None:
 
     with pytest.raises(ValueError, match="message"):
         get_abstract_from_doi("10.1000/example", session=session)
+
+
+def test_crossref_timeout_retains_endpoint_and_original_error() -> None:
+    session = MagicMock(spec=requests.Session)
+    timeout = requests.Timeout("Crossref timed out")
+    session.get.side_effect = timeout
+
+    with pytest.raises(DataLoadingError) as error:
+        get_abstract_from_doi("10.1000/example/path", session=session)
+
+    assert error.value.source == f"{CROSSREF_WORKS_URL}/10.1000%2Fexample%2Fpath"
+    assert error.value.original is timeout
+    assert error.value.__cause__ is timeout
+    session.close.assert_not_called()
+
+
+def test_crossref_invalid_json_closes_owned_session(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    session = _session_with_payload({})
+    invalid_json = requests.exceptions.JSONDecodeError("invalid JSON", "", 0)
+    session.get.return_value.json.side_effect = invalid_json
+    monkeypatch.setattr(requests, "Session", lambda: session)
+
+    with pytest.raises(DataLoadingError) as error:
+        get_abstract_from_doi("10.1000/example")
+
+    assert error.value.original is invalid_json
+    session.close.assert_called_once_with()

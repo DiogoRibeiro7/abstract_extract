@@ -7,6 +7,10 @@ section until a version is tagged.
 
 ## Unreleased
 
+### Changed
+
+- Restricted the supported Python range to 3.12–3.14, matching the versions exercised in CI.
+
 ## 0.1.0 - 2026-09-26
 
 ### Added

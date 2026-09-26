@@ -20,7 +20,19 @@ def get_abstract_from_doi(
 ) -> str | None:
     """Retrieve an abstract from Crossref for a DOI.
 
-    Returns None when Crossref has no abstract for the work.
+    Args:
+        doi: Digital Object Identifier to look up.
+        session: Optional HTTP session for connection reuse or deterministic testing.
+        timeout: Request timeout in seconds. Must be positive.
+
+    Returns:
+        The Crossref abstract string, including any markup supplied by Crossref, or
+        `None` when no abstract is present.
+
+    Raises:
+        ValueError: If the DOI is empty, the timeout is not positive, or Crossref
+            returns an unexpected JSON shape.
+        DataLoadingError: If the HTTP request, status validation, or JSON decoding fails.
     """
     normalized_doi = doi.strip()
     if not normalized_doi:

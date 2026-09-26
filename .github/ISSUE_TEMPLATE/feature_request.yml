@@ -1,0 +1,54 @@
+name: Feature request
+description: Propose a focused improvement to abstract-extract
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests should describe the problem first, then the proposed change.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What limitation or use case should be addressed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the API or behavior you would like to add or change.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches have you considered?
+
+  - type: dropdown
+    id: api
+    attributes:
+      label: Public API impact
+      options:
+        - No public API change
+        - Additive public API change
+        - Breaking public API change
+        - Unsure
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: The request is focused on one coherent change.
+          required: true
+        - label: I have not included credentials or private data.
+          required: true

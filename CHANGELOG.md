@@ -7,6 +7,8 @@ section until a version is tagged.
 
 ## Unreleased
 
+## 0.1.0 - 2026-09-26
+
 ### Added
 
 - Typed Python package layout under `src/abstract_extract`.
@@ -17,6 +19,8 @@ section until a version is tagged.
 - Ruff, strict mypy, and pytest quality gates in CI.
 - Project, contribution, security, and issue-reporting documentation.
 - Conservative Dependabot configuration.
+- Tag-driven GitHub release workflow.
+- Distribution metadata and a `py.typed` marker.
 
 ### Security
 

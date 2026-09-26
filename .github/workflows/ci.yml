@@ -61,14 +61,19 @@ jobs:
       - name: Smoke test built wheel
         shell: bash
         run: |
+          expected_version="$(poetry version -s)"
+
           python -m venv .package-smoke
           .package-smoke/bin/python -m pip install --disable-pip-version-check dist/*.whl
-          .package-smoke/bin/python - <<'PY'
+
+          EXPECTED_VERSION="${expected_version}" .package-smoke/bin/python - <<'PY'
           import importlib.metadata as metadata
+          import importlib.resources as resources
+          import os
 
           import abstract_extract
 
-          expected = {
+          expected_api = {
               "Article",
               "fetch_all_from_scopus",
               "fetch_from_scopus",
@@ -77,8 +82,9 @@ jobs:
               "process_scopus_response",
           }
 
-          assert set(abstract_extract.__all__) == expected
-          assert metadata.version("abstract-extract") == "0.1.0"
+          assert set(abstract_extract.__all__) == expected_api
+          assert metadata.version("abstract-extract") == os.environ["EXPECTED_VERSION"]
+          assert resources.files("abstract_extract").joinpath("py.typed").is_file()
           print("Installed wheel smoke test passed.")
           PY
 

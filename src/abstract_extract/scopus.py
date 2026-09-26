@@ -30,7 +30,7 @@ def _optional_str(value: object) -> str | None:
 def _request_json(
     *,
     session: requests.Session,
-    params: Mapping[str, object],
+    params: Mapping[str, str | int],
     api_key: str,
     timeout: float,
 ) -> dict[str, Any]:
@@ -106,7 +106,7 @@ def fetch_all_from_scopus(
     if author is not None:
         effective_query += f" AND AUTHOR({_require_non_empty(author, name='author')})"
 
-    params: dict[str, object] = {
+    params: dict[str, str | int] = {
         "query": effective_query,
         "count": MAX_PAGE_SIZE,
         "cursor": "*",

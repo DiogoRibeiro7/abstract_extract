@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Python 3.12
+- Python 3.12, 3.13, or 3.14
 - Poetry
 - a Scopus API key for Scopus requests
 

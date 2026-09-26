@@ -4,21 +4,30 @@ on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to publish to PyPI"
+        required: true
+        type: string
 
-permissions:
-  contents: write
+env:
+  RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
 
 jobs:
   release:
     name: Build and release
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+          ref: ${{ env.RELEASE_TAG }}
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -38,8 +47,8 @@ jobs:
           package_version="$(poetry version -s)"
           expected_tag="v${package_version}"
 
-          if [[ "${GITHUB_REF_NAME}" != "${expected_tag}" ]]; then
-            echo "Tag ${GITHUB_REF_NAME} does not match package version ${package_version}."
+          if [[ "${RELEASE_TAG}" != "${expected_tag}" ]]; then
+            echo "Tag ${RELEASE_TAG} does not match package version ${package_version}."
             echo "Expected tag: ${expected_tag}"
             exit 1
           fi
@@ -63,7 +72,44 @@ jobs:
         run: poetry build
 
       - name: Create GitHub release
+        if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" dist/*             --generate-notes             --title "${GITHUB_REF_NAME}"             --verify-tag
+          gh release create "${RELEASE_TAG}" dist/* \
+            --generate-notes \
+            --title "${RELEASE_TAG}" \
+            --verify-tag
+
+      - name: Verify existing GitHub release
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release view "${RELEASE_TAG}"
+
+  publish-pypi:
+    name: Publish to PyPI
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/project/abstract-extract/
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download GitHub release distributions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p dist
+          gh release download "${RELEASE_TAG}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --pattern "*.whl" \
+            --pattern "*.tar.gz" \
+            --dir dist
+
+      - name: Publish distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

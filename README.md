@@ -1,7 +1,7 @@
 # abstract-extract
 
 [![CI](https://github.com/DiogoRibeiro7/abstract_extract/actions/workflows/ci.yml/badge.svg)](https://github.com/DiogoRibeiro7/abstract_extract/actions/workflows/ci.yml)
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+[![Python 3.12–3.14](https://img.shields.io/badge/python-3.12%E2%80%933.14-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Typed Python utilities for retrieving and normalizing scholarly article metadata and abstracts from **Scopus** and **Crossref**.
@@ -24,7 +24,7 @@ The package provides a small, explicit API for querying Scopus, following cursor
 
 ## Requirements
 
-- Python 3.12
+- Python 3.12, 3.13, or 3.14
 - Poetry
 - A Scopus API key for Scopus requests
 

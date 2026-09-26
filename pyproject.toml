@@ -4,6 +4,27 @@ version = "0.1.0"
 description = "Typed Python utilities for retrieving and normalizing scholarly abstracts from Scopus and Crossref."
 authors = ["Diogo Ribeiro"]
 license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/DiogoRibeiro7/abstract_extract"
+repository = "https://github.com/DiogoRibeiro7/abstract_extract"
+keywords = [
+  "abstracts",
+  "bibliographic-data",
+  "crossref",
+  "scholarly-metadata",
+  "scopus",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Topic :: Text Processing",
+  "Typing :: Typed",
+]
 packages = [{ include = "abstract_extract", from = "src" }]
 
 [tool.poetry.dependencies]

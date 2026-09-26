@@ -135,14 +135,10 @@ def fetch_all_from_scopus(
             if not isinstance(page_entries, list):
                 raise ValueError("Scopus 'entry' field must be a list")
 
-            entries.extend(
-                entry for entry in page_entries if isinstance(entry, dict)
-            )
+            entries.extend(entry for entry in page_entries if isinstance(entry, dict))
 
             cursor = search_results.get("cursor")
-            next_cursor = (
-                cursor.get("@next") if isinstance(cursor, Mapping) else None
-            )
+            next_cursor = cursor.get("@next") if isinstance(cursor, Mapping) else None
             if not isinstance(next_cursor, str) or not next_cursor:
                 break
             params["cursor"] = next_cursor

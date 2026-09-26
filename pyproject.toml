@@ -32,6 +32,8 @@ python = "^3.12"
 requests = ">=2.32,<3.0"
 
 [tool.poetry.group.dev.dependencies]
+mkdocs = ">=1.6,<2.0"
+mkdocs-material = ">=9.6,<10.0"
 mypy = ">=1.18,<2.0"
 pytest = ">=8.0,<10.0"
 pytest-cov = ">=6.0,<8.0"

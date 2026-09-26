@@ -7,6 +7,10 @@ section until a version is tagged.
 
 ## Unreleased
 
+### Added
+
+- Added PyPI trusted publishing through the release workflow, using OIDC instead of stored API tokens.
+
 ### Changed
 
 - Restricted the supported Python range to 3.12–3.14, matching the versions exercised in CI.

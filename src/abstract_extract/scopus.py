@@ -78,7 +78,8 @@ def fetch_from_scopus(
     Raises:
         ValueError: If required values are empty, the page size or timeout is invalid,
             or Scopus returns a non-object JSON response.
-        DataLoadingError: If the HTTP request, status validation, or JSON decoding fails.
+        DataLoadingError: If the HTTP request, status validation, or JSON decoding
+            fails.
     """
     query = _require_non_empty(query, name="query")
     api_key = _require_non_empty(api_key, name="api_key")

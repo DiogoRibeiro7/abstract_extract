@@ -1,93 +1,41 @@
 # API reference
 
-The supported top-level API is exported from `abstract_extract`.
+The reference below is generated directly from the package source. Function signatures,
+type annotations, parameter descriptions, return values, and documented exceptions stay
+synchronized with the code through `mkdocstrings`.
 
-## `Article`
+## Article model
 
-```python
-@dataclass(frozen=True, slots=True)
-class Article:
-    title: str | None
-    abstract: str | None
-    publication_date: str | None
-    authors: tuple[str, ...]
-    doi: str | None
-```
+::: abstract_extract.models.Article
+    options:
+      members_order: source
 
-A normalized immutable scholarly article record.
+## Scopus
 
-## `fetch_from_scopus`
+### fetch_from_scopus
 
-```python
-fetch_from_scopus(
-    query: str,
-    api_key: str,
-    *,
-    max_results: int = 25,
-    session: requests.Session | None = None,
-    timeout: float = 30.0,
-) -> dict[str, Any]
-```
+::: abstract_extract.scopus.fetch_from_scopus
 
-Fetches one Scopus search page.
+### fetch_all_from_scopus
 
-The function validates non-empty `query` and `api_key`, requires `max_results` between 1 and 25, and rejects non-positive timeouts.
+::: abstract_extract.scopus.fetch_all_from_scopus
 
-## `fetch_all_from_scopus`
+### process_scopus_entries
 
-```python
-fetch_all_from_scopus(
-    query: str,
-    api_key: str,
-    *,
-    start_date: str | None = None,
-    end_date: str | None = None,
-    author: str | None = None,
-    session: requests.Session | None = None,
-    timeout: float = 30.0,
-) -> list[dict[str, Any]]
-```
+::: abstract_extract.scopus.process_scopus_entries
 
-Fetches all Scopus entries available through cursor pagination.
+### process_scopus_response
 
-Date bounds must be supplied together.
+::: abstract_extract.scopus.process_scopus_response
 
-## `process_scopus_entries`
+## Crossref
 
-```python
-process_scopus_entries(
-    entries: Iterable[Mapping[str, Any]],
-) -> list[Article]
-```
+### get_abstract_from_doi
 
-Converts raw Scopus entry mappings into `Article` objects.
+::: abstract_extract.crossref.get_abstract_from_doi
 
-## `process_scopus_response`
+## Error behavior
 
-```python
-process_scopus_response(
-    payload: Mapping[str, Any],
-) -> list[Article]
-```
-
-Extracts the `search-results.entry` collection from a single Scopus response and normalizes it.
-
-## `get_abstract_from_doi`
-
-```python
-get_abstract_from_doi(
-    doi: str,
-    *,
-    session: requests.Session | None = None,
-    timeout: float = 30.0,
-) -> str | None
-```
-
-Retrieves the Crossref abstract field for a DOI.
-
-Returns `None` when Crossref provides no abstract. HTTP and JSON decoding failures
-raise `dataexcept.DataLoadingError`; malformed response shapes raise `ValueError`.
-
-The Scopus fetch functions also raise `DataLoadingError` for request and JSON
-decoding failures. The exception exposes the endpoint as `source` and retains the
-underlying `requests` exception as `original` and `__cause__`.
+Network failures, HTTP errors, and JSON decoding failures from Scopus and Crossref are
+wrapped as `dataexcept.DataLoadingError`. Invalid input and malformed response shapes
+raise `ValueError`.

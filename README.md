@@ -1,6 +1,7 @@
 # abstract-extract
 
 [![CI](https://github.com/DiogoRibeiro7/abstract_extract/actions/workflows/ci.yml/badge.svg)](https://github.com/DiogoRibeiro7/abstract_extract/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/abstract-extract.svg)](https://pypi.org/project/abstract-extract/)
 [![Python 3.12–3.14](https://img.shields.io/badge/python-3.12%E2%80%933.14-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -25,25 +26,24 @@ The package provides a small, explicit API for querying Scopus, following cursor
 ## Requirements
 
 - Python 3.12, 3.13, or 3.14
-- Poetry
 - A Scopus API key for Scopus requests
 
 Crossref requests do not require a Scopus API key.
 
 ## Installation
 
-Clone the repository and install the project with Poetry:
+Install the released package from PyPI:
+
+```bash
+pip install abstract-extract
+```
+
+For development from source:
 
 ```bash
 git clone https://github.com/DiogoRibeiro7/abstract_extract.git
 cd abstract_extract
 poetry install
-```
-
-The package can then be used inside the Poetry environment:
-
-```bash
-poetry run python
 ```
 
 ## Scopus credentials

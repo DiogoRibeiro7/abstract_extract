@@ -51,3 +51,33 @@ jobs:
 
       - name: Documentation
         run: poetry run mkdocs build --strict
+
+      - name: Validate package metadata
+        run: poetry check
+
+      - name: Build distributions
+        run: poetry build
+
+      - name: Smoke test built wheel
+        shell: bash
+        run: |
+          python -m venv .package-smoke
+          .package-smoke/bin/python -m pip install --disable-pip-version-check dist/*.whl
+          .package-smoke/bin/python - <<'PY'
+          import importlib.metadata as metadata
+
+          import abstract_extract
+
+          expected = {
+              "Article",
+              "fetch_all_from_scopus",
+              "fetch_from_scopus",
+              "get_abstract_from_doi",
+              "process_scopus_entries",
+              "process_scopus_response",
+          }
+
+          assert set(abstract_extract.__all__) == expected
+          assert metadata.version("abstract-extract") == "0.1.0"
+          print("Installed wheel smoke test passed.")
+          PY

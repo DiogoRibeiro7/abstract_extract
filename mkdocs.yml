@@ -4,16 +4,35 @@ site_url: https://diogoribeiro7.github.io/abstract_extract/
 repo_url: https://github.com/DiogoRibeiro7/abstract_extract
 repo_name: DiogoRibeiro7/abstract_extract
 edit_uri: edit/main/docs/
+strict: true
 
 theme:
   name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to light mode
+    - scheme: default
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to dark mode
   features:
-    - navigation.instant
+    - navigation.tabs
     - navigation.sections
     - navigation.top
-    - content.code.copy
+    - navigation.footer
     - search.suggest
     - search.highlight
+    - content.code.copy
+    - content.tabs.link
+    - toc.follow
 
 nav:
   - Home: index.md
@@ -28,15 +47,22 @@ markdown_extensions:
   - attr_list
   - def_list
   - footnotes
+  - md_in_html
+  - tables
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - toc:
       permalink: true
 
 plugins:
   - search
 
-strict: true
+extra_css:
+  - stylesheets/extra.css
+
+copyright: Copyright &copy; 2026 Diogo Ribeiro

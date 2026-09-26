@@ -10,6 +10,7 @@ Clone the repository and install the development dependencies:
 git clone https://github.com/DiogoRibeiro7/abstract_extract.git
 cd abstract_extract
 poetry install
+poetry run pre-commit install
 ```
 
 The project targets Python 3.12.
@@ -25,6 +26,18 @@ The project targets Python 3.12.
 
 Prefer small pull requests over broad refactors that mix unrelated concerns.
 
+## Pre-commit
+
+Installed hooks run Ruff linting, Ruff formatting, and strict mypy before a commit is created.
+
+Run them explicitly across the repository with:
+
+```bash
+poetry run pre-commit run --all-files
+```
+
+Tests and documentation builds are intentionally left to the full local check or CI rather than running on every commit.
+
 ## Quality checks
 
 Run the same checks enforced by CI:
@@ -34,6 +47,7 @@ poetry run ruff check .
 poetry run ruff format --check .
 poetry run mypy src
 poetry run pytest --cov=abstract_extract --cov-report=term-missing
+poetry run mkdocs build --strict
 ```
 
 The repository currently enforces a minimum total test coverage of 90%.
@@ -65,7 +79,7 @@ Mock external HTTP boundaries rather than internal implementation details when p
 
 ## Documentation
 
-Update the README when a change affects:
+Update the README and/or MkDocs pages when a change affects:
 
 - installation;
 - configuration;

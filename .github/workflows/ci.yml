@@ -48,3 +48,6 @@ jobs:
 
       - name: Tests
         run: poetry run pytest --cov=abstract_extract --cov-report=term-missing
+
+      - name: Documentation
+        run: poetry run mkdocs build --strict

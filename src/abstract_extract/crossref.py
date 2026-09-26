@@ -32,7 +32,8 @@ def get_abstract_from_doi(
     Raises:
         ValueError: If the DOI is empty, the timeout is not positive, or Crossref
             returns an unexpected JSON shape.
-        DataLoadingError: If the HTTP request, status validation, or JSON decoding fails.
+        DataLoadingError: If the HTTP request, status validation, or JSON decoding
+            fails.
     """
     normalized_doi = doi.strip()
     if not normalized_doi:

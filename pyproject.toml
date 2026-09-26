@@ -34,3 +34,14 @@ python_version = "3.12"
 strict = true
 packages = ["abstract_extract"]
 mypy_path = "src"
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["abstract_extract"]
+
+[tool.coverage.report]
+show_missing = true

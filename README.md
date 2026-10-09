@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/project-logo.png" alt="abstract_extract project logo" width="160" height="160">
+</p>
+
 # abstract-extract
 
 [![CI](https://github.com/DiogoRibeiro7/abstract_extract/actions/workflows/ci.yml/badge.svg)](https://github.com/DiogoRibeiro7/abstract_extract/actions/workflows/ci.yml)

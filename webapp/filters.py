@@ -13,9 +13,7 @@ from typing import Literal
 from abstract_extract.search import SearchHit, SearchSource
 from webapp.viewmodel import readable_abstract
 
-SortOrder = Literal[
-    "discovery", "newest", "oldest", "title", "most_sources"
-]
+SortOrder = Literal["discovery", "newest", "oldest", "title", "most_sources"]
 
 _YEAR = re.compile(r"^(\d{4})(?:\D|$)")
 

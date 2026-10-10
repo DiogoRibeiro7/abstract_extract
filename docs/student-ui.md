@@ -4,6 +4,34 @@ Article Finder is a browser interface for students and researchers who do not
 want to use Python. It uses the same typed `search_articles()` service as
 the Python package.
 
+## A full student research workflow
+
+The Article Finder browser application now has four areas:
+
+- **Discover papers:** search selected databases and apply local filters for
+  words, source, publication year and abstract availability. Sort results or
+  view them in batches of ten. Filtering is applied to the retrieved first page,
+  not to the full database.
+- **My reading list:** save papers, take notes, mark them as To read, Reading,
+  Reviewed or Excluded, and download an annotated reading matrix.
+- **Compare papers:** examine up to three saved records side by side using
+  their available bibliographic metadata, abstracts and your notes.
+- **Research guide:** follow a critical-reading and source-verification checklist.
+
+### Save work between sessions
+
+Reading lists and notes stay in the current browser session. Select **Save
+project (JSON)** before closing the browser and use **Import saved reading list**
+next time. The project format includes no API keys. The app does not maintain a
+student database or user accounts.
+
+### Export formats
+
+You can export search results as CSV, annotated notes as CSV, saved projects as
+JSON, and provisional references as BibTeX. BibTeX uses generic `@misc` records
+when venue and publication-type metadata are absent. Verify the source records
+before citing: the app does not fabricate journals, volumes, issues or pages.
+
 ## What students can do
 
 1. Open the app link provided by an instructor.

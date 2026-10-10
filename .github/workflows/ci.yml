@@ -50,7 +50,7 @@ jobs:
         run: poetry run pytest --cov=abstract_extract --cov-report=term-missing
 
       - name: Streamlit import check
-        run: poetry run python -m py_compile webapp/app.py webapp/viewmodel.py
+        run: poetry run python -m py_compile webapp/app.py webapp/viewmodel.py webapp/filters.py webapp/library.py
 
       - name: Documentation
         run: poetry run mkdocs build --strict

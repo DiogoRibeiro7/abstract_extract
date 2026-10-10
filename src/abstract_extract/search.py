@@ -29,9 +29,7 @@ _SUPPORTED_SOURCES: tuple[SearchSource, ...] = (
     "pubmed",
     "scopus",
 )
-_DOI_PREFIX = re.compile(
-    r"^(?:https?://(?:dx\.)?doi\.org/|doi:\s*)", re.IGNORECASE
-)
+_DOI_PREFIX = re.compile(r"^(?:https?://(?:dx\.)?doi\.org/|doi:\s*)", re.IGNORECASE)
 
 
 @dataclass(frozen=True, slots=True)
@@ -104,8 +102,7 @@ def _merge(existing: SearchHit, incoming: Article, source: SearchSource) -> Sear
         title=_nonempty(current.title) or _nonempty(incoming.title),
         abstract=current_abstract or incoming_abstract,
         publication_date=(
-            _nonempty(current.publication_date)
-            or _nonempty(incoming.publication_date)
+            _nonempty(current.publication_date) or _nonempty(incoming.publication_date)
         ),
         authors=current.authors or incoming.authors,
         doi=current.doi,
@@ -113,12 +110,12 @@ def _merge(existing: SearchHit, incoming: Article, source: SearchSource) -> Sear
     abstract_source = (
         existing.abstract_source
         if current_abstract is not None
-        else source if incoming_abstract is not None else None
+        else source
+        if incoming_abstract is not None
+        else None
     )
     sources = (
-        existing.sources
-        if source in existing.sources
-        else (*existing.sources, source)
+        existing.sources if source in existing.sources else (*existing.sources, source)
     )
     return SearchHit(
         article=merged,
@@ -210,9 +207,7 @@ def _validate(
         raise ValueError("timeout must be a finite positive number")
     if on_error not in ("raise", "collect"):
         raise ValueError("on_error must be 'raise' or 'collect'")
-    if email is not None and (
-        not isinstance(email, str) or not email.strip()
-    ):
+    if email is not None and (not isinstance(email, str) or not email.strip()):
         raise ValueError("email must be a non-empty string")
     keys = dict(api_keys) if api_keys is not None else {}
     for provider, key in keys.items():
@@ -267,9 +262,7 @@ def search_articles(
         wins each field; missing values are filled from later providers. Authors
         use the first nonempty author list. Source rankings are not calibrated.
     """
-    keys = _validate(
-        query, sources, max_results, api_keys, email, on_error, timeout
-    )
+    keys = _validate(query, sources, max_results, api_keys, email, on_error, timeout)
     owns_session = session is None
     client = session if session is not None else requests.Session()
     hits: list[SearchHit] = []

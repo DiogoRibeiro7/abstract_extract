@@ -79,8 +79,11 @@ def update_bookmark(
 
 def export_library(items: Sequence[Bookmark]) -> bytes:
     """Produce a portable UTF-8 JSON file, without search credentials."""
-    payload = {"format": "abstract-extract-reading-list", "version": 1,
-               "articles": [asdict(item) for item in items]}
+    payload = {
+        "format": "abstract-extract-reading-list",
+        "version": 1,
+        "articles": [asdict(item) for item in items],
+    }
     return json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
 
 
@@ -92,9 +95,11 @@ def import_library(raw: bytes) -> tuple[Bookmark, ...]:
         payload: Any = json.loads(raw)
     except (ValueError, UnicodeDecodeError) as exc:
         raise ValueError("Invalid reading-list JSON") from exc
-    if not isinstance(payload, dict) or payload.get("format") != (
-        "abstract-extract-reading-list"
-    ) or payload.get("version") != 1:
+    if (
+        not isinstance(payload, dict)
+        or payload.get("format") != ("abstract-extract-reading-list")
+        or payload.get("version") != 1
+    ):
         raise ValueError("Unsupported reading-list format")
     articles = payload.get("articles")
     if not isinstance(articles, list) or len(articles) > MAX_BOOKMARKS:
@@ -123,10 +128,15 @@ def import_library(raw: bytes) -> tuple[Bookmark, ...]:
         ):
             raise ValueError("Invalid source list")
         item = Bookmark(
-            key=value["key"], title=value["title"],
-            authors=tuple(authors), publication_date=value.get("publication_date"),
-            doi=value.get("doi"), abstract=value.get("abstract"),
-            sources=tuple(sources), note=value["note"], status=value["status"],
+            key=value["key"],
+            title=value["title"],
+            authors=tuple(authors),
+            publication_date=value.get("publication_date"),
+            doi=value.get("doi"),
+            abstract=value.get("abstract"),
+            sources=tuple(sources),
+            note=value["note"],
+            status=value["status"],
         )
         item = update_bookmark(item)
         if not item.key or item.key in seen:
@@ -147,18 +157,33 @@ def library_csv(items: Sequence[Bookmark]) -> bytes:
     output = io.StringIO(newline="")
     writer = csv.writer(output)
     writer.writerow(
-        ["Title", "Authors", "Date", "DOI", "Abstract", "Sources",
-         "Reading status", "Notes"]
+        [
+            "Title",
+            "Authors",
+            "Date",
+            "DOI",
+            "Abstract",
+            "Sources",
+            "Reading status",
+            "Notes",
+        ]
     )
     for item in items:
-        writer.writerow([
-            _safe_cell(value) for value in (
-                item.title, "; ".join(item.authors),
-                item.publication_date or "", item.doi or "",
-                item.abstract or "", "; ".join(item.sources),
-                item.status, item.note,
-            )
-        ])
+        writer.writerow(
+            [
+                _safe_cell(value)
+                for value in (
+                    item.title,
+                    "; ".join(item.authors),
+                    item.publication_date or "",
+                    item.doi or "",
+                    item.abstract or "",
+                    "; ".join(item.sources),
+                    item.status,
+                    item.note,
+                )
+            ]
+        )
     return output.getvalue().encode("utf-8-sig")
 
 

@@ -7,6 +7,8 @@ import io
 
 import pytest
 
+from abstract_extract.models import Article
+from abstract_extract.search import SearchHit, SearchResponse
 from webapp.viewmodel import (
     api_keys_from_environment,
     available_sources,
@@ -14,9 +16,6 @@ from webapp.viewmodel import (
     readable_abstract,
     report_to_csv,
 )
-
-from abstract_extract.models import Article
-from abstract_extract.search import SearchHit, SearchResponse
 
 
 def _sample_report(

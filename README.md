@@ -9,9 +9,21 @@
 [![Python 3.12–3.14](https://img.shields.io/badge/python-3.12%E2%80%933.14-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Typed Python utilities for retrieving and normalizing scholarly article metadata and abstracts from **Scopus** and **Crossref**.
+Typed Python utilities for retrieving and normalizing scholarly article metadata and abstracts from **Scopus**, **Crossref**, **OpenAlex**, **Semantic Scholar**, and **PubMed**.
 
 The package provides a small, explicit API for querying Scopus, following cursor-based pagination, converting raw Scopus records into typed `Article` objects, and retrieving abstracts from Crossref by DOI.
+
+## Literature discovery
+
+Search using `search_openalex`, `search_semantic_scholar`, or `search_pubmed` without changing the existing `Article` model. See the [provider guide](docs/providers.md) for examples, credentials, and limitations.
+
+```python
+from abstract_extract import search_openalex
+
+articles = search_openalex("bayesian change point detection", max_results=20)
+for article in articles:
+    print(article.title, article.abstract)
+```
 
 ## Features
 

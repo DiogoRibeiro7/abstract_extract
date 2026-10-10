@@ -38,6 +38,7 @@ nav:
   - Home: index.md
   - Getting started: getting-started.md
   - Usage: usage.md
+  - Literature providers: providers.md
   - API reference: api.md
   - Development: development.md
   - Releases: releases.md

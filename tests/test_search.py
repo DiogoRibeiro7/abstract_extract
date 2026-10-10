@@ -124,12 +124,8 @@ def test_dedup_preserves_first_source_and_fills_missing_fields(
 def test_reversed_priority_changes_metadata_winner(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    _provider(
-        monkeypatch, "openalex", [_article(title="First source", abstract="A")]
-    )
-    _provider(
-        monkeypatch, "pubmed", [_article(title="First requested", abstract="B")]
-    )
+    _provider(monkeypatch, "openalex", [_article(title="First source", abstract="A")])
+    _provider(monkeypatch, "pubmed", [_article(title="First requested", abstract="B")])
     result = search_articles(
         "topic",
         sources=("pubmed", "openalex"),
@@ -306,9 +302,7 @@ def test_crossref_enriches_only_missing_abstracts_after_dedup(
     assert hit.sources == ("openalex", "pubmed")
     assert result.results[1].abstract_source == "openalex"
     assert result.results[2].abstract_source is None
-    crossref.assert_called_once_with(
-        "10.20/missing", session=session, timeout=4.0
-    )
+    crossref.assert_called_once_with("10.20/missing", session=session, timeout=4.0)
 
 
 @pytest.mark.parametrize("abstract", [None, " ", ""])

@@ -26,7 +26,7 @@ def search_pubmed(
 
     Args:
         query: PubMed search expression.
-        max_results: Number of identifiers to retrieve (1–100).
+        max_results: Number of identifiers to retrieve (1-100).
         email: Optional contact email used by NCBI E-utilities.
         api_key: Optional NCBI API key.
         session: Injectable HTTP session.
@@ -34,7 +34,11 @@ def search_pubmed(
     """
     if not isinstance(query, str) or not query.strip():
         raise ValueError("query must be a non-empty string")
-    if not isinstance(max_results, int) or isinstance(max_results, bool) or not 1 <= max_results <= 100:
+    if (
+        not isinstance(max_results, int)
+        or isinstance(max_results, bool)
+        or not 1 <= max_results <= 100
+    ):
         raise ValueError("max_results must be between 1 and 100")
     if timeout <= 0:
         raise ValueError("timeout must be positive")
@@ -42,7 +46,10 @@ def search_pubmed(
         if value is not None and not value.strip():
             raise ValueError(f"{name} must not be empty")
     params: dict[str, str | int] = {
-        "db": "pubmed", "term": query.strip(), "retmode": "json", "retmax": max_results,
+        "db": "pubmed",
+        "term": query.strip(),
+        "retmode": "json",
+        "retmax": max_results,
     }
     if email is not None:
         params["email"] = email.strip()
@@ -55,15 +62,21 @@ def search_pubmed(
             response = client.get(ESEARCH_URL, params=params, timeout=timeout)
             response.raise_for_status()
             payload = response.json()
-        if not isinstance(payload, dict) or not isinstance(payload.get("esearchresult"), dict):
+        if not isinstance(payload, dict) or not isinstance(
+            payload.get("esearchresult"), dict
+        ):
             raise ValueError("PubMed search response is missing esearchresult")
         identifiers = payload["esearchresult"].get("idlist")
-        if not isinstance(identifiers, list) or any(not isinstance(identifier, str) for identifier in identifiers):
+        if not isinstance(identifiers, list) or any(
+            not isinstance(identifier, str) for identifier in identifiers
+        ):
             raise ValueError("PubMed idlist must be a list of strings")
         if not identifiers:
             return []
         fetch_params: dict[str, str] = {
-            "db": "pubmed", "id": ",".join(identifiers), "retmode": "xml",
+            "db": "pubmed",
+            "id": ",".join(identifiers),
+            "retmode": "xml",
         }
         if email is not None:
             fetch_params["email"] = email.strip()
@@ -93,10 +106,12 @@ def search_pubmed(
             for author in element.findall("./AuthorList/Author"):
                 collective = _xml_text(author.find("CollectiveName"))
                 individual = " ".join(
-                    piece for piece in (
+                    piece
+                    for piece in (
                         _xml_text(author.find("ForeName")),
                         _xml_text(author.find("LastName")),
-                    ) if piece
+                    )
+                    if piece
                 )
                 if collective or individual:
                     authors.append(collective or individual)
@@ -108,13 +123,15 @@ def search_pubmed(
             date = _xml_text(element.find("./ArticleDate/Year"))
             if date is None:
                 date = _xml_text(element.find("./Journal/JournalIssue/PubDate/Year"))
-            articles.append(Article(
-                title=title,
-                abstract=" ".join(abstract_parts) if abstract_parts else None,
-                publication_date=date,
-                authors=tuple(authors),
-                doi=doi,
-            ))
+            articles.append(
+                Article(
+                    title=title,
+                    abstract=" ".join(abstract_parts) if abstract_parts else None,
+                    publication_date=date,
+                    authors=tuple(authors),
+                    doi=doi,
+                )
+            )
         return articles
     finally:
         if owns_session:

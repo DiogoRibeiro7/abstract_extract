@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any
 
 import requests
 from dataexcept import DataLoadingError, wrapping
@@ -24,7 +23,11 @@ def reconstruct_abstract(index: object) -> str | None:
         if not isinstance(word, str) or not isinstance(indices, list):
             raise ValueError("Invalid OpenAlex inverted-index entry")
         for position in indices:
-            if not isinstance(position, int) or isinstance(position, bool) or position < 0:
+            if (
+                not isinstance(position, int)
+                or isinstance(position, bool)
+                or position < 0
+            ):
                 raise ValueError("Invalid OpenAlex word position")
             if position in positions:
                 raise ValueError("Duplicate OpenAlex word position")
@@ -48,14 +51,18 @@ def search_openalex(
 
     Args:
         query: Free-text works search.
-        max_results: Number of works (1–100) from the first result page.
+        max_results: Number of works (1-100) from the first result page.
         api_key: Optional OpenAlex API key.
         session: Injectable HTTP session.
         timeout: Positive HTTP timeout in seconds.
     """
     if not isinstance(query, str) or not query.strip():
         raise ValueError("query must be a non-empty string")
-    if not isinstance(max_results, int) or isinstance(max_results, bool) or not 1 <= max_results <= 100:
+    if (
+        not isinstance(max_results, int)
+        or isinstance(max_results, bool)
+        or not 1 <= max_results <= 100
+    ):
         raise ValueError("max_results must be between 1 and 100")
     if timeout <= 0:
         raise ValueError("timeout must be positive")
@@ -72,7 +79,9 @@ def search_openalex(
             response = client.get(OPENALEX_URL, params=params, timeout=timeout)
             response.raise_for_status()
             payload = response.json()
-        if not isinstance(payload, Mapping) or not isinstance(payload.get("results"), list):
+        if not isinstance(payload, Mapping) or not isinstance(
+            payload.get("results"), list
+        ):
             raise ValueError("OpenAlex response must contain a results list")
         articles: list[Article] = []
         for item in payload["results"]:
@@ -86,17 +95,27 @@ def search_openalex(
                 if not isinstance(authorship, Mapping):
                     continue
                 author = authorship.get("author")
-                if isinstance(author, Mapping) and isinstance(author.get("display_name"), str):
+                if isinstance(author, Mapping) and isinstance(
+                    author.get("display_name"), str
+                ):
                     authors.append(author["display_name"])
             raw_doi = item.get("doi")
-            doi = raw_doi.removeprefix("https://doi.org/") if isinstance(raw_doi, str) else None
-            articles.append(Article(
-                title=item.get("title") if isinstance(item.get("title"), str) else None,
-                abstract=reconstruct_abstract(item.get("abstract_inverted_index")),
-                publication_date=item.get("publication_date") if isinstance(item.get("publication_date"), str) else None,
-                authors=tuple(authors),
-                doi=doi,
-            ))
+            doi = (
+                raw_doi.removeprefix("https://doi.org/")
+                if isinstance(raw_doi, str)
+                else None
+            )
+            title = item.get("title")
+            date = item.get("publication_date")
+            articles.append(
+                Article(
+                    title=title if isinstance(title, str) else None,
+                    abstract=reconstruct_abstract(item.get("abstract_inverted_index")),
+                    publication_date=date if isinstance(date, str) else None,
+                    authors=tuple(authors),
+                    doi=doi,
+                )
+            )
         return articles
     finally:
         if owns_session:

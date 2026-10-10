@@ -9,6 +9,9 @@ def test_public_api_exposes_supported_symbols() -> None:
         "get_abstract_from_doi",
         "process_scopus_entries",
         "process_scopus_response",
+        "search_openalex",
+        "search_pubmed",
+        "search_semantic_scholar",
     }
 
     assert set(abstract_extract.__all__) == expected

@@ -23,7 +23,11 @@ def search_semantic_scholar(
     """Search one page of papers, optionally authenticating with an API key."""
     if not isinstance(query, str) or not query.strip():
         raise ValueError("query must be a non-empty string")
-    if not isinstance(max_results, int) or isinstance(max_results, bool) or not 1 <= max_results <= 100:
+    if (
+        not isinstance(max_results, int)
+        or isinstance(max_results, bool)
+        or not 1 <= max_results <= 100
+    ):
         raise ValueError("max_results must be between 1 and 100")
     if timeout <= 0:
         raise ValueError("timeout must be positive")
@@ -41,11 +45,20 @@ def search_semantic_scholar(
     owns_session = session is None
     client = session if session is not None else requests.Session()
     try:
-        with wrapping(requests.RequestException, DataLoadingError, source=SEMANTIC_SCHOLAR_URL):
-            response = client.get(SEMANTIC_SCHOLAR_URL, headers=headers, params=params, timeout=timeout)
+        with wrapping(
+            requests.RequestException, DataLoadingError, source=SEMANTIC_SCHOLAR_URL
+        ):
+            response = client.get(
+                SEMANTIC_SCHOLAR_URL,
+                headers=headers,
+                params=params,
+                timeout=timeout,
+            )
             response.raise_for_status()
             payload = response.json()
-        if not isinstance(payload, Mapping) or not isinstance(payload.get("data"), list):
+        if not isinstance(payload, Mapping) or not isinstance(
+            payload.get("data"), list
+        ):
             raise ValueError("Semantic Scholar response must contain a data list")
         articles: list[Article] = []
         for item in payload["data"]:
@@ -63,15 +76,23 @@ def search_semantic_scholar(
             doi = ids.get("DOI") if isinstance(ids, Mapping) else None
             date = item.get("publicationDate")
             year = item.get("year")
-            if not isinstance(date, str) and isinstance(year, int) and not isinstance(year, bool):
+            if (
+                not isinstance(date, str)
+                and isinstance(year, int)
+                and not isinstance(year, bool)
+            ):
                 date = str(year)
-            articles.append(Article(
-                title=item.get("title") if isinstance(item.get("title"), str) else None,
-                abstract=item.get("abstract") if isinstance(item.get("abstract"), str) else None,
-                publication_date=date if isinstance(date, str) else None,
-                authors=names,
-                doi=doi if isinstance(doi, str) else None,
-            ))
+            title = item.get("title")
+            abstract = item.get("abstract")
+            articles.append(
+                Article(
+                    title=title if isinstance(title, str) else None,
+                    abstract=abstract if isinstance(abstract, str) else None,
+                    publication_date=date if isinstance(date, str) else None,
+                    authors=names,
+                    doi=doi if isinstance(doi, str) else None,
+                )
+            )
         return articles
     finally:
         if owns_session:

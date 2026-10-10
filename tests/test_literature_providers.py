@@ -259,9 +259,7 @@ def test_pubmed_rejects_invalid_search_response() -> None:
 
 def test_pubmed_rejects_invalid_identifier_list() -> None:
     session = MagicMock(spec=requests.Session)
-    session.get.return_value = _response(
-        payload={"esearchresult": {"idlist": [12]}}
-    )
+    session.get.return_value = _response(payload={"esearchresult": {"idlist": [12]}})
     with pytest.raises(ValueError, match="idlist"):
         search_pubmed("topic", session=session)
 
@@ -270,8 +268,7 @@ def test_pubmed_skips_records_without_article() -> None:
     session = MagicMock(spec=requests.Session)
     session.get.side_effect = [
         _response(payload={"esearchresult": {"idlist": ["12"]}}),
-        _response(content=b"<PubmedArticleSet><PubmedArticle/>"
-                 b"</PubmedArticleSet>"),
+        _response(content=b"<PubmedArticleSet><PubmedArticle/></PubmedArticleSet>"),
     ]
     assert search_pubmed("topic", session=session) == []
 

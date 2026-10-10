@@ -9,6 +9,9 @@ section until a version is tagged.
 
 ### Added
 
+- Added OpenAlex, Semantic Scholar and PubMed provider searches.
+- Added unified first-page searching, DOI-based deduplication and source provenance.
+- Added opt-in Crossref abstract enrichment and collect/raise failure policies.
 - Added PyPI trusted publishing through the release workflow, using OIDC instead of stored API tokens.
 
 ### Changed

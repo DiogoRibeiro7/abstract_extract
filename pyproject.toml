@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "abstract-extract"
 version = "0.1.0"
-description = "Typed Python utilities for retrieving and normalizing scholarly abstracts from Scopus and Crossref."
+description = "Typed searches and abstracts from Scopus, Crossref, OpenAlex, Semantic Scholar, and PubMed."
 authors = ["Diogo Ribeiro"]
 license = "MIT"
 readme = "README.md"

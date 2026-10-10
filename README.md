@@ -11,7 +11,32 @@
 
 Typed Python utilities for retrieving and normalizing scholarly article metadata and abstracts from **Scopus**, **Crossref**, **OpenAlex**, **Semantic Scholar**, and **PubMed**.
 
-The package provides a small, explicit API for querying Scopus, following cursor-based pagination, converting raw Scopus records into typed `Article` objects, and retrieving abstracts from Crossref by DOI.
+The package provides typed provider adapters and a unified search interface with DOI-based deduplication, source provenance, and opt-in Crossref enrichment. Existing Scopus cursor pagination and raw API functions remain available.
+
+## Unified literature search
+
+```python
+from abstract_extract import search_articles
+
+report = search_articles(
+    "gaussian process forecasting",
+    sources=("openalex", "semantic_scholar", "pubmed"),
+    max_results=20,
+    enrich_abstracts=True,
+    on_error="collect",
+)
+
+for hit in report.results:
+    print(hit.article.doi, hit.sources, hit.abstract_source)
+
+for failure in report.failures:
+    print(failure.source, type(failure.error).__name__)
+```
+
+Results are deduplicated only by normalized DOI. Metadata conflicts use
+the first nonempty value in the requested provider order. See
+[the provider guide](docs/providers.md) for API keys, Scopus participation,
+limits, and partial-failure semantics.
 
 ## Literature discovery
 
@@ -33,6 +58,7 @@ for article in articles:
 - Typed immutable `Article` model.
 - Normalization of raw Scopus records.
 - Crossref abstract lookup by DOI.
+- Unified provider search, DOI deduplication, provenance and abstract enrichment.
 - Injectable HTTP sessions for testing and connection reuse.
 - Strict static typing with mypy.
 - Ruff linting and formatting.
@@ -192,11 +218,19 @@ The supported top-level interface is:
 ```python
 from abstract_extract import (
     Article,
+    SearchFailure,
+    SearchHit,
+    SearchResponse,
     fetch_all_from_scopus,
     fetch_from_scopus,
     get_abstract_from_doi,
+    normalize_doi,
     process_scopus_entries,
     process_scopus_response,
+    search_articles,
+    search_openalex,
+    search_pubmed,
+    search_semantic_scholar,
 )
 ```
 
@@ -235,7 +269,11 @@ The coverage configuration enforces a minimum total coverage of 90%.
 │       ├── __init__.py
 │       ├── crossref.py
 │       ├── models.py
-│       └── scopus.py
+│       ├── openalex.py
+│       ├── pubmed.py
+│       ├── scopus.py
+│       ├── search.py
+│       └── semantic_scholar.py
 ├── tests/
 ├── .env.example
 ├── pyproject.toml

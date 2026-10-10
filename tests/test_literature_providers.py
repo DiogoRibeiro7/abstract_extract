@@ -172,3 +172,155 @@ def test_pubmed_rejects_malformed_xml() -> None:
     ]
     with pytest.raises(ValueError, match="XML"):
         search_pubmed("query", session=session)
+
+
+def test_openalex_empty_abstract_and_missing_metadata() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.return_value = _response(
+        payload={"results": [{"abstract_inverted_index": None, "authorships": []}]}
+    )
+    items = search_openalex("topic", session=session)
+    assert len(items) == 1
+    assert items[0].abstract is None
+    assert items[0].title is None
+    assert items[0].authors == ()
+    assert items[0].doi is None
+
+
+def test_openalex_rejects_nonobject_result() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.return_value = _response(payload={"results": [42]})
+    with pytest.raises(ValueError, match="work"):
+        search_openalex("topic", session=session)
+
+
+def test_openalex_rejects_invalid_authorships() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.return_value = _response(
+        payload={"results": [{"authorships": "invalid"}]}
+    )
+    with pytest.raises(ValueError, match="authorships"):
+        search_openalex("topic", session=session)
+
+
+def test_openalex_rejects_invalid_payload() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.return_value = _response(payload={})
+    with pytest.raises(ValueError, match="results"):
+        search_openalex("topic", session=session)
+
+
+def test_openalex_reconstructs_empty_index() -> None:
+    assert reconstruct_abstract({}) is None
+
+
+def test_openalex_rejects_nonlist_positions() -> None:
+    with pytest.raises(ValueError, match="inverted-index"):
+        reconstruct_abstract({"word": 5})
+
+
+def test_semantic_scholar_rejects_invalid_payload() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.return_value = _response(payload={"data": {}})
+    with pytest.raises(ValueError, match="data"):
+        search_semantic_scholar("topic", session=session)
+
+
+def test_semantic_scholar_rejects_nonobject_paper() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.return_value = _response(payload={"data": [None]})
+    with pytest.raises(ValueError, match="paper"):
+        search_semantic_scholar("topic", session=session)
+
+
+def test_semantic_scholar_rejects_invalid_authors() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.return_value = _response(payload={"data": [{"authors": None}]})
+    with pytest.raises(ValueError, match="authors"):
+        search_semantic_scholar("topic", session=session)
+
+
+def test_semantic_scholar_missing_abstract_is_none() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.return_value = _response(
+        payload={"data": [{"title": "No abstract", "authors": []}]}
+    )
+    result = search_semantic_scholar("topic", session=session)
+    assert result[0].abstract is None
+    assert result[0].doi is None
+
+
+def test_pubmed_rejects_invalid_search_response() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.return_value = _response(payload={})
+    with pytest.raises(ValueError, match="esearchresult"):
+        search_pubmed("topic", session=session)
+
+
+def test_pubmed_rejects_invalid_identifier_list() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.return_value = _response(
+        payload={"esearchresult": {"idlist": [12]}}
+    )
+    with pytest.raises(ValueError, match="idlist"):
+        search_pubmed("topic", session=session)
+
+
+def test_pubmed_skips_records_without_article() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.side_effect = [
+        _response(payload={"esearchresult": {"idlist": ["12"]}}),
+        _response(content=b"<PubmedArticleSet><PubmedArticle/>"
+                 b"</PubmedArticleSet>"),
+    ]
+    assert search_pubmed("topic", session=session) == []
+
+
+def test_pubmed_returns_none_for_missing_abstract() -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.side_effect = [
+        _response(payload={"esearchresult": {"idlist": ["12"]}}),
+        _response(
+            content=(
+                b"<PubmedArticleSet><PubmedArticle><MedlineCitation>"
+                b"<Article><ArticleTitle>Title</ArticleTitle></Article>"
+                b"</MedlineCitation></PubmedArticle></PubmedArticleSet>"
+            )
+        ),
+    ]
+    items = search_pubmed("topic", session=session)
+    assert items[0].title == "Title"
+    assert items[0].abstract is None
+    assert items[0].publication_date is None
+    assert items[0].authors == ()
+
+
+@pytest.mark.parametrize(
+    ("provider", "options"),
+    [
+        (search_openalex, {"api_key": " "}),
+        (search_semantic_scholar, {"api_key": " "}),
+        (search_pubmed, {"api_key": " "}),
+        (search_pubmed, {"email": " "}),
+    ],
+)
+def test_provider_rejects_blank_optional_credentials(
+    provider: object, options: dict[str, str]
+) -> None:
+    assert callable(provider)
+    with pytest.raises(ValueError, match="empty"):
+        provider("topic", **options)
+
+
+@pytest.mark.parametrize(
+    "provider", [search_openalex, search_semantic_scholar, search_pubmed]
+)
+def test_providers_close_owned_sessions(
+    provider: object, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    session = MagicMock(spec=requests.Session)
+    session.get.side_effect = requests.Timeout("offline")
+    monkeypatch.setattr(requests, "Session", lambda: session)
+    with pytest.raises(DataLoadingError):
+        provider("topic")
+    session.close.assert_called_once_with()

@@ -60,9 +60,7 @@ with search_tab:
             max_results = st.slider(
                 "Results per database (first page)", 5, 25, 15, step=5
             )
-            enrich = st.checkbox(
-                "Find missing abstracts using Crossref", value=False
-            )
+            enrich = st.checkbox("Find missing abstracts using Crossref", value=False)
         submitted = st.form_submit_button("Search papers", type="primary")
 
     if submitted:
@@ -94,13 +92,10 @@ with search_tab:
     if isinstance(report, SearchResponse):
         if report.failures:
             names = ", ".join(sorted({x.source for x in report.failures}))
-            st.warning(
-                f"Some sources failed ({names}). Results may be incomplete."
-            )
+            st.warning(f"Some sources failed ({names}). Results may be incomplete.")
         total = len(report.results)
         abstracts = sum(
-            readable_abstract(x.article.abstract) is not None
-            for x in report.results
+            readable_abstract(x.article.abstract) is not None for x in report.results
         )
         m1, m2, m3 = st.columns(3)
         m1.metric("Unique papers", total)
@@ -111,14 +106,14 @@ with search_tab:
             "absence here is not evidence that a paper does not exist."
         )
         st.download_button(
-            "Export search results (CSV)", report_to_csv(report),
-            "search-results.csv", "text/csv",
+            "Export search results (CSV)",
+            report_to_csv(report),
+            "search-results.csv",
+            "text/csv",
         )
         if total:
             with st.expander("Filter and sort results", expanded=True):
-                text = st.text_input(
-                    "Search within these results", key="filter_text"
-                )
+                text = st.text_input("Search within these results", key="filter_text")
                 c1, c2, c3 = st.columns(3)
                 sources = sorted({s for h in report.results for s in h.sources})
                 chosen_source = c1.selectbox(
@@ -133,13 +128,15 @@ with search_tab:
                     key="filter_order",
                 )
                 years = [
-                    y for hit in report.results
+                    y
+                    for hit in report.results
                     if (y := article_year(hit.article.publication_date)) is not None
                 ]
                 if years:
                     dates = st.slider(
                         "Publication year",
-                        min_value=min(years), max_value=max(years),
+                        min_value=min(years),
+                        max_value=max(years),
                         value=(min(years), max(years)),
                         key="filter_years",
                     )
@@ -157,12 +154,10 @@ with search_tab:
             st.write(f"Showing {len(filtered)} of {total} unique papers.")
             page_size = 10
             page_count = max(1, (len(filtered) + page_size - 1) // page_size)
-            page = st.number_input(
-                "Results page", 1, page_count, 1, key="results_page"
-            )
+            page = st.number_input("Results page", 1, page_count, 1, key="results_page")
             first = (page - 1) * page_size
             for number, hit in enumerate(
-                filtered[first:first + page_size], start=first + 1
+                filtered[first : first + page_size], start=first + 1
             ):
                 a = hit.article
                 saved_key = bookmark_key(hit)
@@ -221,25 +216,29 @@ with library_tab:
     if items:
         c1, c2, c3 = st.columns(3)
         c1.download_button(
-            "Save project (JSON)", export_library(items),
-            "reading-list.json", "application/json",
+            "Save project (JSON)",
+            export_library(items),
+            "reading-list.json",
+            "application/json",
         )
         c2.download_button(
-            "Annotated matrix (CSV)", library_csv(items),
-            "reading-matrix.csv", "text/csv",
+            "Annotated matrix (CSV)",
+            library_csv(items),
+            "reading-matrix.csv",
+            "text/csv",
         )
         c3.download_button(
-            "BibTeX references", library_bibtex(items),
-            "references.bib", "text/plain",
+            "BibTeX references",
+            library_bibtex(items),
+            "references.bib",
+            "text/plain",
         )
         st.info(
             "BibTeX entries are provisional. Verify titles, authors, "
             "publication venues and dates against the original papers."
         )
         for index, item in enumerate(items):
-            with st.expander(
-                f"{index + 1}. {item.title} — {item.status}"
-            ):
+            with st.expander(f"{index + 1}. {item.title} — {item.status}"):
                 st.caption(", ".join(item.authors) or "Authors unavailable")
                 st.write(item.abstract or "No abstract provided.")
                 updated_status = st.selectbox(
@@ -252,7 +251,9 @@ with library_tab:
                 )
                 note = st.text_area(
                     "Your notes: methods, strengths, limitations, relevance",
-                    value=item.note, max_chars=4000, key=f"notes_{item.key}",
+                    value=item.note,
+                    max_chars=4000,
+                    key=f"notes_{item.key}",
                 )
                 left, right = st.columns(2)
                 if left.button("Save notes", key=f"update_{item.key}"):
@@ -285,9 +286,7 @@ with compare_tab:
             item = library[key]
             with column:
                 st.markdown(f"**{escape(item.title)}**")
-                st.caption(
-                    f"{item.publication_date or 'Unknown year'} · {item.status}"
-                )
+                st.caption(f"{item.publication_date or 'Unknown year'} · {item.status}")
                 st.write("Authors:", ", ".join(item.authors) or "Unknown")
                 st.write("DOI:", item.doi or "Not available")
                 st.write("Sources:", ", ".join(item.sources))

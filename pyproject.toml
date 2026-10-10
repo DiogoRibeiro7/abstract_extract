@@ -11,6 +11,9 @@ keywords = [
   "abstracts",
   "bibliographic-data",
   "crossref",
+  "openalex",
+  "pubmed",
+  "semantic-scholar",
   "scholarly-metadata",
   "scopus",
 ]

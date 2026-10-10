@@ -32,8 +32,11 @@ def _hit(
 ) -> SearchHit:
     return SearchHit(
         article=Article(
-            title=title, abstract=abstract, publication_date=date,
-            authors=("A. Researcher",), doi=doi,
+            title=title,
+            abstract=abstract,
+            publication_date=date,
+            authors=("A. Researcher",),
+            doi=doi,
         ),
         sources=sources,
         abstract_source="openalex" if abstract else None,
@@ -61,8 +64,12 @@ def test_filters_combine_source_year_text_and_abstract() -> None:
         _hit("10.1/third", title="Causal models", date=None),
     )
     selected = filter_hits(
-        hits, text="sleep", source="pubmed",
-        abstracts_only=True, year_from=2023, year_to=2026,
+        hits,
+        text="sleep",
+        source="pubmed",
+        abstracts_only=True,
+        year_from=2023,
+        year_to=2026,
     )
     assert len(selected) == 1
     assert selected[0].article.title == "Sleep methods"
@@ -83,13 +90,10 @@ def test_filters_keep_undated_papers_without_date_bounds() -> None:
         ("most_sources", ["Newest", "Older", "Undated"]),
     ],
 )
-def test_filters_sort(
-    order: str, expected: list[str]
-) -> None:
+def test_filters_sort(order: str, expected: list[str]) -> None:
     hits = (
         _hit(title="Older", date="2018"),
-        _hit("10.1/new", title="Newest", date="2025",
-             sources=("openalex", "pubmed")),
+        _hit("10.1/new", title="Newest", date="2025", sources=("openalex", "pubmed")),
         _hit("10.1/unknown", title="Undated", date=None),
     )
     assert [hit.article.title for hit in filter_hits(hits, order=order)] == expected
@@ -120,8 +124,13 @@ def test_missing_doi_has_stable_fingerprint() -> None:
 
 @pytest.mark.parametrize(
     "input_bytes",
-    [b"invalid", b"{}", b"[]", b'{"format":"wrong"}',
-     b'{"format":"abstract-extract-reading-list","version":1,"articles":[3]}'],
+    [
+        b"invalid",
+        b"{}",
+        b"[]",
+        b'{"format":"wrong"}',
+        b'{"format":"abstract-extract-reading-list","version":1,"articles":[3]}',
+    ],
 )
 def test_invalid_restore_rejected(input_bytes: bytes) -> None:
     with pytest.raises(ValueError):
@@ -157,8 +166,6 @@ def test_exports_citations_and_matrix() -> None:
     assert "@misc{" in bib
     assert "10.1234/example" in bib
     assert r"Data \& statistics" in bib
-    rows = list(csv.reader(io.StringIO(
-        library_csv((item,)).decode("utf-8-sig")
-    )))
+    rows = list(csv.reader(io.StringIO(library_csv((item,)).decode("utf-8-sig"))))
     assert rows[1][-1] == "'=HYPERLINK(1)"
     assert rows[1][-2] == "To read"

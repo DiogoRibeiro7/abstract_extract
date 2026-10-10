@@ -6,6 +6,7 @@ Search OpenAlex, Semantic Scholar, PubMed, and Scopus through one typed interfac
 
 [Get started](getting-started.md){ .md-button .md-button--primary }
 [Explore the API](api.md){ .md-button }
+[Student search interface](student-ui.md){ .md-button }
 
 </div>
 
@@ -39,6 +40,7 @@ Retrieve abstracts by DOI while keeping HTTP failures explicit and testable.
 
 ## What it provides
 
+- An optional, browser-based student interface with CSV download.
 - Unified searches with exact DOI deduplication and source provenance.
 - Opt-in Crossref enrichment and structured partial-failure reports.
 - Scopus search with explicit request timeouts.

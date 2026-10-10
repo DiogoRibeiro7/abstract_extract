@@ -1,6 +1,6 @@
 # Literature search providers
 
-The package now supports **OpenAlex**, **Semantic Scholar**, and **PubMed**, alongside existing Scopus searches and Crossref DOI abstract lookups.
+The package now supports **OpenAlex**, **Semantic Scholar**, and **PubMed**, alongside existing Scopus searches and Crossref DOI abstract lookups. Students can also use the [browser interface](student-ui.md) without running Python.
 
 Each search adapter returns a `list[Article]` and fetches at most one page (up to 100 records). Provider-specific query languages and relevance rankings differ, so results are not interchangeable. Abstracts may be unavailable and will then be `None`.
 

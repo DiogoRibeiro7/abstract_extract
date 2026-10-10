@@ -49,6 +49,12 @@ pytest-cov = ">=6.0,<8.0"
 ruff = ">=0.13,<1.0"
 types-requests = ">=2.32,<3.0"
 
+[tool.poetry.group.ui]
+optional = true
+
+[tool.poetry.group.ui.dependencies]
+streamlit = ">=1.50,<2.0"
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"

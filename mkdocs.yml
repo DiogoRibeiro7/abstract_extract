@@ -39,6 +39,7 @@ nav:
   - Getting started: getting-started.md
   - Usage: usage.md
   - Literature providers: providers.md
+  - Student web interface: student-ui.md
   - API reference: api.md
   - Development: development.md
   - Releases: releases.md

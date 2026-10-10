@@ -13,6 +13,25 @@ Typed Python utilities for retrieving and normalizing scholarly article metadata
 
 The package provides typed provider adapters and a unified search interface with DOI-based deduplication, source provenance, and opt-in Crossref enrichment. Existing Scopus cursor pagination and raw API functions remain available.
 
+## Student-facing web interface
+
+The optional **Article Finder** web app lets students search scientific
+literature in a browser, read abstracts, follow DOI links, and download a CSV
+file. No code or API keys are required from students.
+
+For instructors or local development:
+
+```bash
+poetry install --with ui
+poetry run streamlit run webapp/app.py
+```
+
+The app starts with OpenAlex and exposes additional databases under
+**Search options**. Scopus appears only when a server-side API key is set.
+Read the [student UI guide](docs/student-ui.md) for credentials, deployment,
+limitations, and usage. This repository does **not** automatically publish
+a live web app.
+
 ## Unified literature search
 
 ```python

@@ -9,6 +9,8 @@ section until a version is tagged.
 
 ### Added
 
+- Added an optional Streamlit browser interface for non-programming students.
+- Added safe CSV export, abstract display cleanup, source selection and UI tests.
 - Added OpenAlex, Semantic Scholar and PubMed provider searches.
 - Added unified first-page searching, DOI-based deduplication and source provenance.
 - Added opt-in Crossref abstract enrichment and collect/raise failure policies.

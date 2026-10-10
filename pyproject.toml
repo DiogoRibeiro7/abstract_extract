@@ -49,6 +49,12 @@ pytest-cov = ">=6.0,<8.0"
 ruff = ">=0.13,<1.0"
 types-requests = ">=2.32,<3.0"
 
+[tool.poetry.group.ui]
+optional = true
+
+[tool.poetry.group.ui.dependencies]
+streamlit = ">=1.50,<2.0"
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -61,6 +67,9 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["abstract_extract", "webapp"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
@@ -70,6 +79,7 @@ mypy_path = "src"
 [tool.pytest.ini_options]
 addopts = "-ra --strict-config --strict-markers"
 testpaths = ["tests"]
+pythonpath = [".", "src"]
 
 [tool.coverage.run]
 branch = true

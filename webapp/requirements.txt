@@ -1,0 +1,3 @@
+# Executed from the repository root on Streamlit Community Cloud.
+-e .
+streamlit>=1.50,<2.0

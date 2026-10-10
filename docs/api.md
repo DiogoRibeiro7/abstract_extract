@@ -2,6 +2,18 @@
 
 The reference below is generated directly from package source using `mkdocstrings`.
 
+## Unified search
+
+::: abstract_extract.search.search_articles
+
+::: abstract_extract.search.normalize_doi
+
+::: abstract_extract.search.SearchResponse
+
+::: abstract_extract.search.SearchHit
+
+::: abstract_extract.search.SearchFailure
+
 ## Article model
 
 ::: abstract_extract.models.Article
@@ -38,4 +50,4 @@ The reference below is generated directly from package source using `mkdocstring
 
 ## Error behavior
 
-HTTP and decoding errors are wrapped as `dataexcept.DataLoadingError`. Invalid input and malformed response shapes raise `ValueError`.
+HTTP and decoding errors are wrapped as `dataexcept.DataLoadingError`. Invalid input and malformed response shapes raise `ValueError`. In unified search, `on_error="collect"` records these failures without silently discarding them.

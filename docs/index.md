@@ -2,7 +2,7 @@
 
 # Scholarly metadata, without the API clutter
 
-Retrieve and normalize article metadata from Scopus, enrich abstracts from Crossref, and keep the result in a small typed Python API.
+Search OpenAlex, Semantic Scholar, PubMed, and Scopus through one typed interface. Deduplicate by DOI, preserve source provenance, and optionally enrich missing abstracts from Crossref.
 
 [Get started](getting-started.md){ .md-button .md-button--primary }
 [Explore the API](api.md){ .md-button }
@@ -39,6 +39,8 @@ Retrieve abstracts by DOI while keeping HTTP failures explicit and testable.
 
 ## What it provides
 
+- Unified searches with exact DOI deduplication and source provenance.
+- Opt-in Crossref enrichment and structured partial-failure reports.
 - Scopus search with explicit request timeouts.
 - Cursor-based retrieval of complete result sets.
 - Optional author and date-range filtering.

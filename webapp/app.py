@@ -5,11 +5,13 @@ from __future__ import annotations
 import logging
 import os
 from html import escape
+from typing import cast
 
 import streamlit as st
 
 from abstract_extract import SearchResponse, search_articles
-from webapp.filters import article_year, filter_hits
+from abstract_extract.search import SearchSource
+from webapp.filters import SortOrder, article_year, filter_hits
 from webapp.library import (
     Bookmark,
     bookmark_key,
@@ -72,7 +74,7 @@ with search_tab:
         else:
             with st.spinner("Searching academic databases…"):
                 try:
-                    report = search_articles(
+                    found_report = search_articles(
                         query,
                         sources=tuple(configured[label] for label in labels),
                         max_results=max_results,
@@ -86,7 +88,7 @@ with search_tab:
                     _LOGGER.error("Search failed: %s", type(error).__name__)
                     st.error("Search unavailable. Try again or ask your instructor.")
                 else:
-                    st.session_state["search_report"] = report
+                    st.session_state["search_report"] = found_report
                     st.session_state["last_query"] = query.strip()
     report = st.session_state.get("search_report")
     if isinstance(report, SearchResponse):
@@ -132,6 +134,7 @@ with search_tab:
                     for hit in report.results
                     if (y := article_year(hit.article.publication_date)) is not None
                 ]
+                dates: tuple[int, int] | None
                 if years:
                     dates = st.slider(
                         "Publication year",
@@ -145,11 +148,15 @@ with search_tab:
             filtered = filter_hits(
                 report.results,
                 text=text,
-                source=None if chosen_source == "All" else chosen_source,
+                source=(
+                    None
+                    if chosen_source == "All"
+                    else cast(SearchSource, chosen_source)
+                ),
                 abstracts_only=abstracts_only,
                 year_from=dates[0] if dates else None,
                 year_to=dates[1] if dates else None,
-                order=sort,
+                order=cast(SortOrder, sort),
             )
             st.write(f"Showing {len(filtered)} of {total} unique papers.")
             page_size = 10

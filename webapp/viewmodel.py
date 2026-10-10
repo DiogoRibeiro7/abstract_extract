@@ -70,9 +70,7 @@ class _AbstractTextParser(HTMLParser):
         """Retain text content, including text inside inline emphasis tags."""
         self.parts.append(data)
 
-    def handle_starttag(
-        self, tag: str, attrs: list[tuple[str, str | None]]
-    ) -> None:
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         """Add whitespace at block boundaries, not around inline markup."""
         if tag in _BLOCK_TAGS:
             self.parts.append(" ")

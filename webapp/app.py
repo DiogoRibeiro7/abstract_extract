@@ -156,9 +156,7 @@ if isinstance(report, SearchResponse):
             help="Open the file in a spreadsheet program.",
         )
 
-        source_names = {
-            key: label for label, key in configured_sources.items()
-        }
+        source_names = {key: label for label, key in configured_sources.items()}
         for number, hit in enumerate(report.results, start=1):
             article = hit.article
             with st.container(border=True):

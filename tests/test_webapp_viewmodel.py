@@ -55,9 +55,7 @@ def test_openalex_accessible_without_credential() -> None:
 
 def test_scopus_visible_only_when_server_has_key() -> None:
     assert "Scopus" not in available_sources({"SCOPUS_API_KEY": "  "})
-    assert available_sources({"SCOPUS_API_KEY": " server-key "})["Scopus"] == (
-        "scopus"
-    )
+    assert available_sources({"SCOPUS_API_KEY": " server-key "})["Scopus"] == ("scopus")
 
 
 def test_keys_are_stripped_and_only_supported_names_exported() -> None:
@@ -146,23 +144,17 @@ def test_csv_blocks_spreadsheet_formula_injection(formula: str) -> None:
 
 def test_csv_quotes_commas_and_newlines() -> None:
     report = _sample_report(title="A, quoted\npaper")
-    rows = list(
-        csv.reader(io.StringIO(report_to_csv(report).decode("utf-8-sig")))
-    )
+    rows = list(csv.reader(io.StringIO(report_to_csv(report).decode("utf-8-sig"))))
     assert rows[1][0] == "A, quoted\npaper"
 
 
 def test_empty_report_can_be_downloaded() -> None:
     report = SearchResponse(results=(), failures=())
-    rows = list(
-        csv.reader(io.StringIO(report_to_csv(report).decode("utf-8-sig")))
-    )
+    rows = list(csv.reader(io.StringIO(report_to_csv(report).decode("utf-8-sig"))))
     assert len(rows) == 1
 
 
 def test_missing_abstract_exports_empty_cell() -> None:
     report = _sample_report(abstract=None)
-    rows = list(
-        csv.reader(io.StringIO(report_to_csv(report).decode("utf-8-sig")))
-    )
+    rows = list(csv.reader(io.StringIO(report_to_csv(report).decode("utf-8-sig"))))
     assert rows[1][4] == ""

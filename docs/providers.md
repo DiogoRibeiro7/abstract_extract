@@ -22,7 +22,8 @@ OpenAlex abstracts are reconstructed from the API's inverted-index representatio
 from abstract_extract import search_semantic_scholar
 
 articles = search_semantic_scholar(
-    "gaussian process regression", max_results=20,
+    "gaussian process regression",
+    max_results=20,
     api_key="your-optional-key",
 )
 ```

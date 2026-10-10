@@ -15,9 +15,9 @@ The package provides typed provider adapters and a unified search interface with
 
 ## Student-facing web interface
 
-The optional **Article Finder** web app lets students search scientific
-literature in a browser, read abstracts, follow DOI links, and download a CSV
-file. No code or API keys are required from students.
+The optional **Article Finder** workspace lets students search literature,
+filter results, maintain an annotated reading list, compare papers, and export
+CSV, JSON and provisional BibTeX references. No code or API keys are required from students.
 
 For instructors or local development:
 

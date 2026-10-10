@@ -20,4 +20,6 @@ def test_student_app_starts_without_network_or_credentials(
     assert app_test.title[0].value == "Article Finder"
     assert len(app_test.tabs) == 4
     assert len(app_test.text_input) >= 1
-    assert len(app_test.multiselect) == 1
+    assert len(app_test.multiselect) == 2
+    assert app_test.multiselect[0].label == "Academic databases"
+    assert app_test.multiselect[1].label == "Choose saved papers"

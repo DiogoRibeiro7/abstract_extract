@@ -122,7 +122,7 @@ with search_tab:
                 c1, c2, c3 = st.columns(3)
                 sources = sorted({s for h in report.results for s in h.sources})
                 chosen_source = c1.selectbox(
-                    "Database", ["All"] + sources, key="filter_source"
+                    "Database", ["All", *sources], key="filter_source"
                 )
                 abstracts_only = c2.checkbox(
                     "Abstract available", key="filter_abstract"

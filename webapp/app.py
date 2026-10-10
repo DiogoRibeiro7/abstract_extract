@@ -185,7 +185,9 @@ with search_tab:
                             "Abstract from: " + (hit.abstract_source or "Unknown")
                         )
                     if saved_key in st.session_state["library"]:
-                        if st.button("Remove from reading list", key=f"remove_{number}"):
+                        if st.button(
+                            "Remove from reading list", key=f"remove_{number}"
+                        ):
                             del st.session_state["library"][saved_key]
                             st.rerun()
                     elif st.button("Save paper", key=f"save_{number}"):

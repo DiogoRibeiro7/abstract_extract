@@ -322,9 +322,9 @@ with faculty_tab:
                 title=current_appraisal.title,
                 design=design,
                 question=cast(Appraisal, answers[0]),
-                methods=cast(Decision, answers[1]),
-                bias=cast(Decision, answers[2]),
-                uncertainty=cast(Decision, answers[3]),
+                methods=cast(Appraisal, answers[1]),
+                bias=cast(Appraisal, answers[2]),
+                uncertainty=cast(Appraisal, answers[3]),
                 notes=critical_notes,
             )
             st.success("Appraisal stored in this session.")

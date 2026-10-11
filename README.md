@@ -13,11 +13,12 @@ Typed Python utilities for retrieving and normalizing scholarly article metadata
 
 The package provides typed provider adapters and a unified search interface with DOI-based deduplication, source provenance, and opt-in Crossref enrichment. Existing Scopus cursor pagination and raw API functions remain available.
 
-## Student-facing web interface
+## Literature research and teaching web interface
 
-The optional **Article Finder** web app lets students search scientific
-literature in a browser, read abstracts, follow DOI links, and download a CSV
-file. No code or API keys are required from students.
+The optional **Article Finder** workspace serves students, professors and
+researchers. Users can search scientific literature, screen papers and record
+notes; teaching and research workflows also generate review protocols,
+assignment briefs and manual critical appraisal worksheets. No coding is required.
 
 For instructors or local development:
 

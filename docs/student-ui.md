@@ -1,6 +1,6 @@
-# Article Finder: search papers without code
+# Article Finder: academic literature research and teaching
 
-Article Finder is a browser interface for students and researchers who do not
+Article Finder is a browser interface for students, professors and researchers who do not
 want to use Python. It uses the same typed `search_articles()` service as
 the Python package.
 
@@ -124,3 +124,9 @@ across devices or offer student accounts.
 
 No relevance decisions are made by AI. A literature review still requires
 reading the primary publications and verifying each citation.
+
+## Professor and researcher workflows
+
+The **Teaching & research** tab supports an editable review protocol with a research question, PICO-style fields, eligibility criteria, databases, search strategy and appraisal guidance. Professors can export a research protocol or a student assignment brief as Markdown. It also provides a manual critical-appraisal worksheet for retrieved papers, without inventing methodological scores. Appraisals can be exported as CSV or JSON.
+
+These tools are available to everyone and do not confer professor permissions, secure student submissions, shared courses or institutional account access. Protocols and appraisals are session-local. Export your work before closing the browser.

@@ -53,7 +53,8 @@ def test_protocol_rejects_missing_essential_fields() -> None:
 def test_manual_appraisal_starts_ungraded() -> None:
     hit = SearchHit(
         Article("A paper", None, "2025", (), "10.1/example"),
-        ("pubmed",), None,
+        ("pubmed",),
+        None,
     )
     entry = blank_appraisal(hit)
     assert entry.question == "not_assessed"
@@ -63,13 +64,16 @@ def test_manual_appraisal_starts_ungraded() -> None:
 
 def test_exports_preserve_appraisals_and_escape_formulas() -> None:
     entry = AppraisalEntry(
-        doi="10.1/test", title="=SUM(1)", design="Survey",
-        question="yes", methods="partly", bias="unclear",
-        uncertainty="no", notes="+CMD",
+        doi="10.1/test",
+        title="=SUM(1)",
+        design="Survey",
+        question="yes",
+        methods="partly",
+        bias="unclear",
+        uncertainty="no",
+        notes="+CMD",
     )
-    rows = list(csv.reader(io.StringIO(
-        appraisal_csv([entry]).decode("utf-8-sig")
-    )))
+    rows = list(csv.reader(io.StringIO(appraisal_csv([entry]).decode("utf-8-sig"))))
     assert rows[1][0] == "'=SUM(1)"
     assert rows[1][-1] == "'+CMD"
     restored = json.loads(appraisal_json([entry]))
@@ -79,6 +83,11 @@ def test_exports_preserve_appraisals_and_escape_formulas() -> None:
 def test_invalid_appraisal_option_is_rejected() -> None:
     with pytest.raises(ValueError, match="Invalid"):
         AppraisalEntry(
-            doi=None, title=None, design="", question="excellent",
-            methods="yes", bias="no", uncertainty="unclear",
+            doi=None,
+            title=None,
+            design="",
+            question="excellent",
+            methods="yes",
+            bias="no",
+            uncertainty="unclear",
         )

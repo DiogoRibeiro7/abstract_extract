@@ -100,3 +100,27 @@ are limited to each browser session.
 
 See the [provider guide](providers.md) for detailed search semantics and
 the project's issue tracker for pagination, bulk export and rate limits.
+
+## Literature screening workspace
+
+After searching, open **My reading list**. Students can filter by keyword,
+publication year, screening decision, and abstract availability. Each paper
+has an abstract, DOI link, relevance decision (*Include*, *Maybe*, *Exclude*),
+and free-text notes.
+
+The dashboard displays the number of retrieved papers, included papers,
+uncertain papers, and reviewed papers.
+
+Export either the included papers, included and maybe papers, all results,
+or the currently filtered set. Available formats:
+
+- **CSV:** metadata, abstract, screening decision, and notes.
+- **JSON:** a structured and versioned record of findings and notes.
+- **BibTeX:** citations to import into a reference manager or LaTeX.
+
+Only the current browser session stores this reading list. Export your work
+before closing the session. The application does not currently synchronize
+across devices or offer student accounts.
+
+No relevance decisions are made by AI. A literature review still requires
+reading the primary publications and verifying each citation.

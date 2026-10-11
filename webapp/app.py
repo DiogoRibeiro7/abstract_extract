@@ -1,198 +1,237 @@
-"""Browser-based scientific article search for students.
-
-Run from the repository root:
-    poetry install --with ui
-    poetry run streamlit run webapp/app.py
-"""
+"""Interactive student research workspace built on the typed search API."""
 
 from __future__ import annotations
 
 import logging
 import os
-from html import escape
 
 import streamlit as st
 
 from abstract_extract import SearchResponse, search_articles
+from webapp.review import (
+    ReviewEntry,
+    filter_entries,
+    make_entries,
+    review_bibtex,
+    review_csv,
+    review_json,
+    selection_counts,
+    update_entry,
+)
 from webapp.viewmodel import (
     api_keys_from_environment,
     available_sources,
     doi_link,
     readable_abstract,
-    report_to_csv,
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-st.set_page_config(
-    page_title="Article Finder",
-    page_icon="📚",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-)
-
+st.set_page_config(page_title="Article Finder", page_icon="📚", layout="wide")
 st.title("Article Finder")
-st.write(
-    "Find scientific papers, read available abstracts, and save your results. "
-    "No programming required."
-)
+st.write("Search, screen and organize scholarly literature without coding.")
 st.caption(
-    "Start with OpenAlex. For a broader search, choose additional databases "
-    "under Search options."
+    "Workflow: search → filter → read → mark relevant papers → take notes → export."
 )
 
-configured_sources = available_sources(os.environ)
+sources_available = available_sources(os.environ)
+if "review_entries" not in st.session_state:
+    st.session_state["review_entries"] = []
+if "last_query" not in st.session_state:
+    st.session_state["last_query"] = ""
 
-with st.form("article_search"):
-    query = st.text_input(
-        "What topic are you researching?",
-        placeholder="For example: machine learning for sleep monitoring",
-        key="research_query",
-    )
+search_tab, review_tab, help_tab = st.tabs(
+    ["Find articles", "My reading list", "Student guide"]
+)
 
-    with st.expander("Search options", expanded=False):
-        selected_labels = st.multiselect(
-            "Databases to search",
-            options=list(configured_sources),
-            default=["OpenAlex"],
-            help=(
-                "Different databases cover different publications. "
-                "Some may limit how often they can be searched."
-            ),
+with search_tab:
+    with st.form("article_search"):
+        query = st.text_input(
+            "Research topic",
+            placeholder="For example: wearable sensors and sleep quality",
+            key="research_query",
         )
-        max_results = st.slider(
-            "Maximum results from each database",
-            min_value=5,
-            max_value=25,
-            value=10,
-            step=5,
-            help="The final number can be smaller after duplicate articles are merged.",
-        )
-        enrich = st.checkbox(
-            "Try to find missing abstracts using Crossref",
-            value=False,
-            help=(
-                "Crossref may have additional abstracts. "
-                "Enrichment can take longer and some papers have no abstract."
-            ),
-        )
-
-    submitted = st.form_submit_button("Search articles", type="primary")
-
-if submitted:
-    # Never show credentials or raw HTTP exception messages to students.
-    st.session_state.pop("search_report", None)
-    if not query.strip():
-        st.warning("Enter a research topic to start your search.")
-    elif not selected_labels:
-        st.warning("Select at least one database.")
-    else:
-        sources = tuple(configured_sources[label] for label in selected_labels)
-        with st.spinner("Searching scientific databases…"):
-            try:
-                result = search_articles(
-                    query,
-                    sources=sources,
-                    max_results=max_results,
-                    api_keys=api_keys_from_environment(os.environ),
-                    email=os.environ.get("NCBI_EMAIL", "").strip() or None,
-                    enrich_abstracts=enrich,
-                    on_error="collect",
-                    timeout=15.0,
-                )
-            except Exception as error:
-                # The UI boundary gives a generic message; the package API
-                # retains detailed errors for researchers and developers.
-                _LOGGER.error(
-                    "Student search failed unexpectedly (%s)",
-                    type(error).__name__,
-                )
-                st.error(
-                    "The search could not be completed. "
-                    "Try again or contact your instructor."
-                )
-            else:
-                st.session_state["search_report"] = result
-                st.session_state["last_query"] = query.strip()
-
-report = st.session_state.get("search_report")
-if isinstance(report, SearchResponse):
-    st.divider()
-    st.subheader("Search results")
-    st.caption(f"Topic: {st.session_state.get('last_query', '')}")
-
-    if report.failures:
-        names = ", ".join(sorted({failure.source for failure in report.failures}))
-        st.warning(
-            "Some databases or abstract lookups could not be reached: "
-            f"{names}. Available results are shown below."
-        )
-
-    if not report.results:
-        if report.failures:
-            st.error(
-                "No articles could be retrieved. "
-                "Some databases were unavailable; please try again later."
+        with st.expander("Search options"):
+            selected = st.multiselect(
+                "Scientific databases",
+                options=list(sources_available),
+                default=["OpenAlex"],
             )
+            max_results = st.slider(
+                "Results per database", min_value=5, max_value=25, value=10, step=5
+            )
+            enrich = st.checkbox("Find missing abstracts with Crossref")
+        submitted = st.form_submit_button("Search articles", type="primary")
+
+    if submitted:
+        if not query.strip() or not selected:
+            st.warning("Enter a research topic and select a database.")
         else:
-            st.info(
-                "No articles found. Try a shorter search phrase "
-                "or search another database."
-            )
-    else:
-        found_with_abstract = sum(
-            readable_abstract(hit.article.abstract) is not None
-            for hit in report.results
-        )
-        metric_one, metric_two = st.columns(2)
-        metric_one.metric("Unique articles", len(report.results))
-        metric_two.metric("With abstracts", found_with_abstract)
-
-        st.download_button(
-            "Download results (CSV)",
-            data=report_to_csv(report),
-            file_name="article-finder-results.csv",
-            mime="text/csv",
-            help="Open the file in a spreadsheet program.",
-        )
-
-        source_names = {key: label for label, key in configured_sources.items()}
-        for number, hit in enumerate(report.results, start=1):
-            article = hit.article
-            with st.container(border=True):
-                title = article.title or "Untitled publication"
-                st.markdown(f"**{number}. {escape(title)}**")
-                byline = " · ".join(
-                    part
-                    for part in (
-                        ", ".join(article.authors) if article.authors else "",
-                        article.publication_date or "",
+            st.session_state["review_entries"] = []
+            st.session_state["search_failures"] = ()
+            with st.spinner("Searching academic databases…"):
+                try:
+                    response = search_articles(
+                        query.strip(),
+                        sources=tuple(sources_available[name] for name in selected),
+                        max_results=max_results,
+                        api_keys=api_keys_from_environment(os.environ),
+                        email=os.environ.get("NCBI_EMAIL", "").strip() or None,
+                        enrich_abstracts=enrich,
+                        on_error="collect",
+                        timeout=15.0,
                     )
-                    if part
+                except Exception as error:
+                    _LOGGER.error(
+                        "Search error: %s", type(error).__name__
+                    )
+                    st.error("The search failed. Try again or ask your instructor.")
+                else:
+                    st.session_state["review_entries"] = make_entries(response)
+                    st.session_state["search_failures"] = response.failures
+                    st.session_state["last_query"] = query.strip()
+                    st.success(
+                        f"Found {len(response.results)} unique article records. "
+                        "Open My reading list to screen them."
+                    )
+
+with review_tab:
+    entries: list[ReviewEntry] = st.session_state["review_entries"]
+    failures = st.session_state.get("search_failures", ())
+    if failures:
+        st.warning(
+            "Some databases failed: "
+            + ", ".join(sorted({failure.source for failure in failures}))
+            + ". Results may be incomplete."
+        )
+    if not entries:
+        st.info("Search for articles first. Your reading list will appear here.")
+    else:
+        st.caption(
+            f"Research question: {st.session_state['last_query']}"
+        )
+        counts = selection_counts(entries)
+        total, included, maybe, screened = st.columns(4)
+        total.metric("Found", len(entries))
+        included.metric("Included", counts["include"])
+        maybe.metric("Maybe", counts["maybe"])
+        screened.metric("Reviewed", len(entries) - counts["unreviewed"])
+
+        with st.expander("Filter your reading list", expanded=True):
+            phrase = st.text_input(
+                "Search within results",
+                placeholder="Filter title, abstract, authors, DOI or notes",
+            )
+            status = st.selectbox(
+                "Screening decision",
+                ["all", "unreviewed", "include", "maybe", "exclude"],
+            )
+            year_filter = st.checkbox("Limit publication years")
+            start_year, end_year = (None, None)
+            if year_filter:
+                start_year = st.number_input(
+                    "From year", min_value=1900, max_value=2100, value=2015
                 )
-                if byline:
-                    st.caption(byline)
-                source_text = ", ".join(
-                    source_names.get(source, source) for source in hit.sources
+                end_year = st.number_input(
+                    "To year", min_value=1900, max_value=2100, value=2026
                 )
-                st.caption(f"Found in: {source_text}")
+            abstracts_only = st.checkbox("Only papers with abstracts")
+        filtered = filter_entries(
+            entries,
+            query=phrase,
+            decision=status,
+            year_from=start_year,
+            year_to=end_year,
+            abstracts_only=abstracts_only,
+        )
+        st.caption(f"Showing {len(filtered)} of {len(entries)} papers")
+        chosen = st.radio(
+            "Export which papers?",
+            ["Included", "Included and maybe", "All", "Current filter"],
+            horizontal=True,
+        )
+        if chosen == "Included":
+            export = [item for item in entries if item.decision == "include"]
+        elif chosen == "Included and maybe":
+            export = [
+                item for item in entries
+                if item.decision in ("include", "maybe")
+            ]
+        elif chosen == "Current filter":
+            export = filtered
+        else:
+            export = entries
+        csv_column, json_column, bib_column = st.columns(3)
+        csv_column.download_button(
+            "Download CSV",
+            data=review_csv(export),
+            file_name="literature-review.csv",
+            mime="text/csv",
+        )
+        json_column.download_button(
+            "Download JSON",
+            data=review_json(export),
+            file_name="literature-review.json",
+            mime="application/json",
+        )
+        bib_column.download_button(
+            "Download BibTeX",
+            data=review_bibtex(export),
+            file_name="references.bib",
+            mime="application/x-bibtex",
+        )
+        for entry in filtered:
+            article = entry.hit.article
+            index = next(
+                i for i, item in enumerate(entries) if item.key == entry.key
+            )
+            with st.container(border=True):
+                st.subheader(article.title or "Untitled publication")
+                if article.authors:
+                    st.caption(", ".join(article.authors))
+                st.caption(
+                    f"Published: {article.publication_date or 'Unknown'}"
+                    f"  |  Found in: {', '.join(entry.hit.sources)}"
+                )
                 link = doi_link(article.doi)
                 if link is not None:
-                    st.markdown(f"[Open article using DOI]({link})")
-                with st.expander("Read abstract"):
-                    abstract = readable_abstract(article.abstract)
-                    if abstract is None:
-                        st.caption("No abstract available for this article.")
-                    else:
-                        st.write(abstract)
-                        st.caption(
-                            "Abstract supplied by: "
-                            f"{hit.abstract_source or 'Unknown source'}"
-                        )
+                    st.link_button("Open DOI", link)
+                with st.expander("Abstract", expanded=False):
+                    st.write(
+                        readable_abstract(article.abstract)
+                        or "No abstract was supplied by these databases."
+                    )
+                decision = st.selectbox(
+                    "Screen this paper",
+                    options=["unreviewed", "include", "maybe", "exclude"],
+                    index=[
+                        "unreviewed", "include", "maybe", "exclude"
+                    ].index(entry.decision),
+                    key=f"decision_{entry.key}",
+                )
+                notes = st.text_area(
+                    "Personal notes",
+                    value=entry.notes,
+                    key=f"notes_{entry.key}",
+                    placeholder="Why is this paper relevant to your question?",
+                )
+                updated = update_entry(entry, decision=decision, notes=notes)
+                if updated != entry:
+                    entries[index] = updated
 
-st.divider()
-st.caption(
-    "Results come from external academic databases. Check article details "
-    "and publication information before citing. This tool does not generate "
-    "or summarize abstracts with AI."
-)
+with help_tab:
+    st.markdown(
+        """
+        ### How to prepare a literature review
+        1. **Write a focused research question.** Search for important concepts.
+        2. **Choose databases.** Different sources cover different subjects.
+        3. **Read abstracts critically.** They are not substitutes for papers.
+        4. **Screen papers.** Mark Include, Maybe or Exclude, and explain why.
+        5. **Export your selection.** BibTeX can be imported by citation tools.
+        6. **Verify references.** Check titles, DOIs and publication dates.
+
+        **Important:** No AI-generated abstracts or relevance judgments are used.
+        This tool only processes metadata retrieved from scholarly APIs.
+        Notes and selections are stored in your current browser session;
+        export them before closing your session.
+        """
+    )

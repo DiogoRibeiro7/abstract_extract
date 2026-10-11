@@ -26,7 +26,8 @@ poetry install --with ui
 poetry run streamlit run webapp/app.py
 ```
 
-The app starts with OpenAlex and exposes additional databases under
+The app includes a reading list, year/keyword filters, relevance screening,
+notes and CSV/JSON/BibTeX exports. It starts with OpenAlex and exposes additional databases under
 **Search options**. Scopus appears only when a server-side API key is set.
 Read the [student UI guide](docs/student-ui.md) for credentials, deployment,
 limitations, and usage. This repository does **not** automatically publish

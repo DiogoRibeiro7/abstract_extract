@@ -9,6 +9,8 @@ section until a version is tagged.
 
 ### Added
 
+- Expanded the student UI into a reading-list workspace with screening, notes, filters and citation exports.
+
 - Added an optional Streamlit browser interface for non-programming students.
 - Added safe CSV export, abstract display cleanup, source selection and UI tests.
 - Added OpenAlex, Semantic Scholar and PubMed provider searches.

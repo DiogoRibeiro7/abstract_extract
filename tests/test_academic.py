@@ -7,7 +7,6 @@ import io
 import json
 from dataclasses import replace
 
-
 import pytest
 
 from abstract_extract.models import Article

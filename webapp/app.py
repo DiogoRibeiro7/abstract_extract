@@ -9,6 +9,16 @@ from typing import cast
 import streamlit as st
 
 from abstract_extract import search_articles
+from webapp.academic import (
+    Appraisal,
+    AppraisalEntry,
+    ReviewProtocol,
+    appraisal_csv,
+    appraisal_json,
+    assignment_markdown,
+    blank_appraisal,
+    protocol_markdown,
+)
 from webapp.review import (
     Decision,
     ReviewEntry,
@@ -30,7 +40,7 @@ from webapp.viewmodel import (
 _LOGGER = logging.getLogger(__name__)
 st.set_page_config(page_title="Article Finder", page_icon="📚", layout="wide")
 st.title("Article Finder")
-st.write("Search, screen and organize scholarly literature without coding.")
+st.write("Discover, screen, teach and evaluate scholarly literature without coding.")
 st.caption(
     "Workflow: search → filter → read → mark relevant papers → take notes → export."
 )
@@ -41,8 +51,8 @@ if "review_entries" not in st.session_state:
 if "last_query" not in st.session_state:
     st.session_state["last_query"] = ""
 
-search_tab, review_tab, help_tab = st.tabs(
-    ["Find articles", "My reading list", "Student guide"]
+search_tab, review_tab, faculty_tab, help_tab = st.tabs(
+    ["Discover", "Reading list", "Teaching & research", "Guide"]
 )
 
 with search_tab:
@@ -212,6 +222,129 @@ with review_tab:
                 )
                 if updated != entry:
                     entries[index] = updated
+
+with faculty_tab:
+    st.subheader("Teaching and research")
+    st.caption(
+        "Build a reusable review protocol, assignment brief and manual "
+        "critical appraisal worksheet. No role-based access is implied."
+    )
+    with st.form("review_protocol"):
+        title = st.text_input("Project or course title")
+        question = st.text_area("Research question")
+        population = st.text_input("Population or context")
+        intervention = st.text_input("Intervention or exposure")
+        comparator = st.text_input("Comparison")
+        outcomes = st.text_input("Outcomes")
+        inclusion = st.text_area("Inclusion criteria")
+        exclusion = st.text_area("Exclusion criteria")
+        databases = st.text_input("Databases")
+        strategy = st.text_area("Search strategy")
+        plan = st.text_area("Appraisal or teaching guidance")
+        protocol_submit = st.form_submit_button("Prepare protocol")
+    if protocol_submit:
+        try:
+            st.session_state["academic_protocol"] = ReviewProtocol(
+                title=title,
+                question=question,
+                population=population,
+                intervention=intervention,
+                comparator=comparator,
+                outcomes=outcomes,
+                inclusion=inclusion,
+                exclusion=exclusion,
+                databases=databases,
+                search_strategy=strategy,
+                assessment_notes=plan,
+            )
+        except ValueError:
+            st.warning("Provide both a title and a research question.")
+    protocol = st.session_state.get("academic_protocol")
+    if isinstance(protocol, ReviewProtocol):
+        a, b = st.columns(2)
+        a.download_button(
+            "Download research protocol",
+            protocol_markdown(protocol),
+            file_name="review-protocol.md",
+            mime="text/markdown",
+        )
+        b.download_button(
+            "Download assignment brief",
+            assignment_markdown(protocol),
+            file_name="student-assignment.md",
+            mime="text/markdown",
+        )
+
+    entries_for_appraisal: list[ReviewEntry] = st.session_state["review_entries"]
+    if entries_for_appraisal:
+        st.subheader("Manual critical appraisal")
+        paper_labels = {
+            item.key: item.hit.article.title or item.key
+            for item in entries_for_appraisal
+        }
+        chosen_paper = st.selectbox(
+            "Paper to appraise",
+            options=list(paper_labels),
+            format_func=lambda key: paper_labels[key],
+        )
+        appraisals: dict[str, AppraisalEntry] = st.session_state.setdefault(
+            "appraisals", {}
+        )
+        selected_entry = next(
+            item for item in entries_for_appraisal if item.key == chosen_paper
+        )
+        current_appraisal = appraisals.get(
+            chosen_paper, blank_appraisal(selected_entry.hit)
+        )
+        with st.form("manual_appraisal"):
+            design = st.text_input("Study design", value=current_appraisal.design)
+            responses = ("not_assessed", "yes", "partly", "no", "unclear")
+            answers: list[str] = []
+            for field_label, previous in (
+                ("Is the research question clear?", current_appraisal.question),
+                ("Are the methods suitable?", current_appraisal.methods),
+                ("Are sources of bias discussed?", current_appraisal.bias),
+                ("Is uncertainty reported?", current_appraisal.uncertainty),
+            ):
+                answer = st.selectbox(
+                    field_label,
+                    responses,
+                    index=responses.index(previous),
+                )
+                answers.append(answer)
+            critical_notes = st.text_area(
+                "Methodological observations", value=current_appraisal.notes
+            )
+            save_appraisal = st.form_submit_button("Save appraisal")
+        if save_appraisal:
+            appraisals[chosen_paper] = AppraisalEntry(
+                doi=current_appraisal.doi,
+                title=current_appraisal.title,
+                design=design,
+                question=cast(Appraisal, answers[0]),
+                methods=cast(Appraisal, answers[1]),
+                bias=cast(Appraisal, answers[2]),
+                uncertainty=cast(Appraisal, answers[3]),
+                notes=critical_notes,
+            )
+            st.success("Appraisal stored in this session.")
+        if appraisals:
+            values = list(appraisals.values())
+            a, b = st.columns(2)
+            a.download_button(
+                "Export appraisals (CSV)",
+                appraisal_csv(values),
+                file_name="academic-appraisals.csv",
+                mime="text/csv",
+            )
+            b.download_button(
+                "Export appraisals (JSON)",
+                appraisal_json(values),
+                file_name="academic-appraisals.json",
+                mime="application/json",
+            )
+    else:
+        st.info("Search papers to enable per-article critical appraisal.")
 
 with help_tab:
     st.markdown(

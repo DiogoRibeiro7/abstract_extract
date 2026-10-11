@@ -9,6 +9,8 @@ section until a version is tagged.
 
 ### Added
 
+- Added teaching and research protocol builders, assignment briefs, and manual critical appraisal exports to the academic interface.
+
 - Expanded the student UI into a reading-list workspace with screening, notes, filters and citation exports.
 
 - Added an optional Streamlit browser interface for non-programming students.

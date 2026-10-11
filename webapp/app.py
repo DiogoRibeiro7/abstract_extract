@@ -297,12 +297,8 @@ with faculty_tab:
             chosen_paper, blank_appraisal(selected_entry.hit)
         )
         with st.form("manual_appraisal"):
-            design = st.text_input(
-                "Study design", value=current_appraisal.design
-            )
-            responses = (
-                "not_assessed", "yes", "partly", "no", "unclear"
-            )
+            design = st.text_input("Study design", value=current_appraisal.design)
+            responses = ("not_assessed", "yes", "partly", "no", "unclear")
             answers: list[str] = []
             for field_label, previous in (
                 ("Is the research question clear?", current_appraisal.question),

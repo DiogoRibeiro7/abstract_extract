@@ -207,7 +207,9 @@ with review_tab:
                     key=f"notes_{entry.key}",
                     placeholder="Why is this paper relevant to your question?",
                 )
-                updated = update_entry(entry, decision=cast(Decision, decision), notes=notes)
+                updated = update_entry(
+                    entry, decision=cast(Decision, decision), notes=notes
+                )
                 if updated != entry:
                     entries[index] = updated
 

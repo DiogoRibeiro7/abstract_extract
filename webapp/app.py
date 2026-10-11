@@ -7,7 +7,7 @@ import os
 
 import streamlit as st
 
-from abstract_extract import SearchResponse, search_articles
+from abstract_extract import search_articles
 from webapp.review import (
     ReviewEntry,
     filter_entries,

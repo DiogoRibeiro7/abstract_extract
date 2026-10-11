@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import cast
 
 import streamlit as st
 
 from abstract_extract import search_articles
 from webapp.review import (
+    Decision,
     ReviewEntry,
     filter_entries,
     make_entries,
@@ -205,7 +207,7 @@ with review_tab:
                     key=f"notes_{entry.key}",
                     placeholder="Why is this paper relevant to your question?",
                 )
-                updated = update_entry(entry, decision=decision, notes=notes)
+                updated = update_entry(entry, decision=cast(Decision, decision), notes=notes)
                 if updated != entry:
                     entries[index] = updated
 

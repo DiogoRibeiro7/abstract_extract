@@ -53,9 +53,7 @@ class AppraisalEntry:
         permitted = {"not_assessed", "yes", "partly", "no", "unclear"}
         if any(
             response not in permitted
-            for response in (
-                self.question, self.methods, self.bias, self.uncertainty
-            )
+            for response in (self.question, self.methods, self.bias, self.uncertainty)
         ):
             raise ValueError("Invalid appraisal response")
 
@@ -75,8 +73,7 @@ def protocol_markdown(protocol: ReviewProtocol) -> str:
         ("Appraisal plan", protocol.assessment_notes),
     )
     sections = "\n\n".join(
-        f"## {label}\n\n{value.strip() or '*Not specified*'}"
-        for label, value in fields
+        f"## {label}\n\n{value.strip() or '*Not specified*'}" for label, value in fields
     )
     return f"# {protocol.title.strip()}\n\n{sections}\n"
 
@@ -116,21 +113,37 @@ def appraisal_csv(entries: list[AppraisalEntry]) -> bytes:
     """Export manual appraisals as spreadsheet-safe UTF-8 CSV."""
     stream = io.StringIO(newline="")
     writer = csv.writer(stream)
-    writer.writerow([
-        "Title", "DOI", "Study design", "Clear question",
-        "Methods appropriate", "Bias assessed",
-        "Uncertainty reported", "Notes",
-    ])
+    writer.writerow(
+        [
+            "Title",
+            "DOI",
+            "Study design",
+            "Clear question",
+            "Methods appropriate",
+            "Bias assessed",
+            "Uncertainty reported",
+            "Notes",
+        ]
+    )
     for entry in entries:
         values = (
-            entry.title or "", entry.doi or "", entry.design,
-            entry.question, entry.methods, entry.bias,
-            entry.uncertainty, entry.notes,
+            entry.title or "",
+            entry.doi or "",
+            entry.design,
+            entry.question,
+            entry.methods,
+            entry.bias,
+            entry.uncertainty,
+            entry.notes,
         )
-        writer.writerow([
-            "'" + value if value.lstrip().startswith(("=", "+", "-", "@"))
-            else value for value in values
-        ])
+        writer.writerow(
+            [
+                "'" + value
+                if value.lstrip().startswith(("=", "+", "-", "@"))
+                else value
+                for value in values
+            ]
+        )
     return stream.getvalue().encode("utf-8-sig")
 
 
@@ -140,5 +153,6 @@ def appraisal_json(entries: list[AppraisalEntry]) -> bytes:
 
     return json.dumps(
         {"version": 1, "appraisals": [asdict(x) for x in entries]},
-        ensure_ascii=False, indent=2,
+        ensure_ascii=False,
+        indent=2,
     ).encode("utf-8")

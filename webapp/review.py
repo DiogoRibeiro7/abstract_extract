@@ -33,17 +33,13 @@ def make_entries(report: SearchResponse) -> list[ReviewEntry]:
     ]
 
 
-def update_entry(
-    entry: ReviewEntry, *, decision: Decision, notes: str
-) -> ReviewEntry:
+def update_entry(entry: ReviewEntry, *, decision: Decision, notes: str) -> ReviewEntry:
     """Validate user decisions and return a replacement immutable entry."""
     if decision not in _DECISIONS:
         raise ValueError("Unsupported review decision")
     if not isinstance(notes, str):
         raise TypeError("notes must be text")
-    return ReviewEntry(
-        key=entry.key, hit=entry.hit, decision=decision, notes=notes
-    )
+    return ReviewEntry(key=entry.key, hit=entry.hit, decision=decision, notes=notes)
 
 
 def filter_entries(
@@ -101,8 +97,14 @@ def review_csv(entries: Sequence[ReviewEntry]) -> bytes:
     writer = csv.writer(stream)
     writer.writerow(
         (
-            "Title", "Authors", "Year/date", "DOI", "Abstract",
-            "Sources", "Decision", "Notes",
+            "Title",
+            "Authors",
+            "Year/date",
+            "DOI",
+            "Abstract",
+            "Sources",
+            "Decision",
+            "Notes",
         )
     )
     for entry in entries:

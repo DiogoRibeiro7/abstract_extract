@@ -81,9 +81,7 @@ with search_tab:
                         timeout=15.0,
                     )
                 except Exception as error:
-                    _LOGGER.error(
-                        "Search error: %s", type(error).__name__
-                    )
+                    _LOGGER.error("Search error: %s", type(error).__name__)
                     st.error("The search failed. Try again or ask your instructor.")
                 else:
                     st.session_state["review_entries"] = make_entries(response)
@@ -106,9 +104,7 @@ with review_tab:
     if not entries:
         st.info("Search for articles first. Your reading list will appear here.")
     else:
-        st.caption(
-            f"Research question: {st.session_state['last_query']}"
-        )
+        st.caption(f"Research question: {st.session_state['last_query']}")
         counts = selection_counts(entries)
         total, included, maybe, screened = st.columns(4)
         total.metric("Found", len(entries))
@@ -152,10 +148,7 @@ with review_tab:
         if chosen == "Included":
             export = [item for item in entries if item.decision == "include"]
         elif chosen == "Included and maybe":
-            export = [
-                item for item in entries
-                if item.decision in ("include", "maybe")
-            ]
+            export = [item for item in entries if item.decision in ("include", "maybe")]
         elif chosen == "Current filter":
             export = filtered
         else:
@@ -181,9 +174,7 @@ with review_tab:
         )
         for entry in filtered:
             article = entry.hit.article
-            index = next(
-                i for i, item in enumerate(entries) if item.key == entry.key
-            )
+            index = next(i for i, item in enumerate(entries) if item.key == entry.key)
             with st.container(border=True):
                 st.subheader(article.title or "Untitled publication")
                 if article.authors:
@@ -203,9 +194,9 @@ with review_tab:
                 decision = st.selectbox(
                     "Screen this paper",
                     options=["unreviewed", "include", "maybe", "exclude"],
-                    index=[
-                        "unreviewed", "include", "maybe", "exclude"
-                    ].index(entry.decision),
+                    index=["unreviewed", "include", "maybe", "exclude"].index(
+                        entry.decision
+                    ),
                     key=f"decision_{entry.key}",
                 )
                 notes = st.text_area(
